@@ -1,0 +1,2276 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Blood Bank Information System</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+  <style>
+    :root {
+      --crimson-dark: #7f0d15;
+      --crimson: #a8151f;
+      --crimson-bright: #c62828;
+      --bg-main: #f4f6f9;
+      --card-bg: #ffffff;
+      --border: #e5e8ee;
+      --text-dark: #1e2430;
+      --text-muted: #6c7586;
+      --green-bg: #e8f5e9;
+      --green-txt: #2e7d32;
+      --amber-bg: #fff8e1;
+      --amber-txt: #ef6c00;
+      --red-bg: #ffebee;
+      --red-txt: #c62828;
+      --blue-bg: #e3f2fd;
+      --blue-txt: #1565c0;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', system-ui, -apple-system, sans-serif; }
+    body { background: var(--bg-main); color: var(--text-dark); }
+    .hidden { display: none !important; }
+
+    /* ================= AUTH SCREEN ================= */
+    .auth-wrapper {
+      min-height: 100vh; display: flex; align-items: center; justify-content: center;
+      gap: 48px; flex-wrap: wrap;
+      background: linear-gradient(115deg, rgba(127, 13, 21, 0.90) 0%, rgba(65, 5, 10, 0.85) 100%),
+                  url('https://images.unsplash.com/photo-1615461066841-6116e61058f4?auto=format&fit=crop&w=1600&q=80');
+      background-size: cover; background-position: center; padding: 30px 20px;
+    }
+    .auth-quote-side { max-width: 480px; color: #fff; }
+    .auth-quote-pill {
+      display: inline-block; background: rgba(255, 255, 255, 0.16);
+      border: 1px solid rgba(255, 255, 255, 0.3); padding: 6px 14px;
+      border-radius: 20px; font-size: 11.5px; font-weight: 700;
+      letter-spacing: 1px; text-transform: uppercase; margin-bottom: 16px;
+    }
+    .auth-quote-side h1 { font-size: 44px; font-weight: 800; line-height: 1.15; margin-bottom: 14px; }
+    .auth-quote-side p { font-size: 15.5px; line-height: 1.6; color: rgba(255, 255, 255, 0.9); }
+    .auth-card { background: #fff; width: 100%; max-width: 420px; border-radius: 16px; padding: 34px; box-shadow: 0 18px 40px rgba(0,0,0,0.35); }
+    .auth-brand { display: flex; align-items: center; justify-content: center; gap: 12px; margin-bottom: 10px; }
+    .auth-brand .logo-circle {
+      width: 44px; height: 44px; border-radius: 50%; background: var(--crimson); color: #fff;
+      display: flex; align-items: center; justify-content: center; font-size: 20px;
+    }
+    .auth-brand h2 { font-size: 21px; color: var(--crimson-dark); line-height: 1.2; }
+    .auth-sub { text-align: center; font-size: 13px; color: var(--text-muted); margin-bottom: 24px; }
+    .auth-switch { text-align: center; margin-top: 18px; font-size: 13px; color: var(--text-muted); }
+    .auth-switch a { color: var(--crimson); font-weight: 700; cursor: pointer; }
+
+    /* ================= HERO BANNER ================= */
+    .hero-banner {
+      position: relative; display: flex; align-items: center;
+      background: linear-gradient(102deg, #ffffff 46%, rgba(255, 255, 255, 0.86) 58%, rgba(168, 21, 31, 0.14) 100%),
+                  url('https://images.unsplash.com/photo-1615461066841-6116e61058f4?auto=format&fit=crop&w=1400&q=80');
+      background-size: cover; background-position: right center;
+      border-radius: 14px; padding: 36px 38px; margin-bottom: 22px;
+      border: 1px solid var(--border); box-shadow: 0 6px 22px rgba(168, 21, 31, 0.08);
+    }
+    .hero-content { max-width: 530px; z-index: 2; }
+    .hero-badge {
+      display: inline-block; background: var(--red-bg); color: var(--crimson);
+      font-size: 11px; font-weight: 800; letter-spacing: 0.9px;
+      padding: 5px 13px; border-radius: 20px; text-transform: uppercase; margin-bottom: 12px;
+    }
+    .hero-title { font-size: 36px; font-weight: 800; color: var(--text-dark); line-height: 1.15; margin-bottom: 12px; }
+    .hero-title span { color: var(--crimson); }
+    .hero-subtitle { font-size: 14.5px; color: #4b5563; line-height: 1.55; margin-bottom: 20px; }
+    .hero-actions { display: flex; gap: 12px; flex-wrap: wrap; }
+
+    /* ================= APP SHELL ================= */
+    .app-shell { display: flex; min-height: 100vh; }
+    .sidebar {
+      width: 245px; background: linear-gradient(180deg, #9c111b 0%, #6d080f 100%);
+      color: #fff; display: flex; flex-direction: column; justify-content: space-between; flex-shrink: 0;
+    }
+    .sidebar-brand { padding: 20px 18px; display: flex; align-items: center; gap: 12px; border-bottom: 1px solid rgba(255,255,255,0.12); }
+    .sidebar-brand .cross-badge {
+      width: 38px; height: 38px; border-radius: 50%; background: #fff; color: var(--crimson);
+      display: flex; align-items: center; justify-content: center; font-size: 18px; font-weight: 900; flex-shrink: 0;
+    }
+    .sidebar-brand h1 { font-size: 17px; font-weight: 700; line-height: 1.15; }
+    .sidebar-brand span { font-size: 11px; opacity: 0.85; font-weight: 400; display: block; }
+
+    .nav-menu { padding: 14px 0 14px 14px; display: flex; flex-direction: column; gap: 5px; }
+    .nav-item {
+      display: flex; align-items: center; gap: 12px; padding: 12px 16px;
+      color: rgba(255,255,255,0.88); font-size: 14px; font-weight: 500;
+      border: none; background: transparent; border-radius: 10px 0 0 10px;
+      cursor: pointer; text-align: left; width: 100%; transition: 0.18s;
+    }
+    .nav-item i { width: 18px; text-align: center; font-size: 15px; }
+    .nav-item:hover { background: rgba(255,255,255,0.12); color: #fff; }
+    .nav-item.active { background: var(--bg-main); color: var(--crimson-dark); font-weight: 700; box-shadow: -3px 3px 10px rgba(0,0,0,0.12); }
+    .nav-item.active i { color: var(--crimson); }
+
+    .sidebar-footer { padding: 16px; text-align: center; opacity: 0.9; }
+    .ecg-box { background: rgba(0,0,0,0.18); border-radius: 12px; padding: 14px 10px; border: 1px solid rgba(255,255,255,0.1); }
+
+    .main-area { flex: 1; display: flex; flex-direction: column; min-width: 0; }
+    .topbar {
+      height: 64px; background: #fff; border-bottom: 1px solid var(--border);
+      padding: 0 26px; display: flex; align-items: center; justify-content: space-between; gap: 16px; position: relative;
+    }
+    .topbar-left { display: flex; align-items: center; gap: 16px; flex: 1; }
+    .menu-toggle { background: none; border: none; font-size: 18px; color: var(--text-dark); cursor: pointer; }
+    .global-search {
+      display: flex; align-items: center; gap: 10px; background: #f5f7fa;
+      border: 1px solid var(--border); border-radius: 8px; padding: 8px 14px; width: 100%; max-width: 420px;
+    }
+    .global-search i { color: var(--text-muted); font-size: 13px; }
+    .global-search input { border: none; background: transparent; outline: none; width: 100%; font-size: 13px; }
+
+    .topbar-right { display: flex; align-items: center; gap: 14px; position: relative; }
+    .notif-btn { position: relative; background: none; border: none; font-size: 17px; color: var(--text-dark); cursor: pointer; }
+    .notif-dot { position: absolute; top: -2px; right: -2px; width: 8px; height: 8px; border-radius: 50%; background: var(--crimson); }
+
+    /* Clickable Profile Pill & Dropdown */
+    .admin-pill {
+      display: flex; align-items: center; gap: 9px; font-size: 14px; font-weight: 600; color: var(--text-dark);
+      padding: 5px 11px; border-radius: 24px; border: 1px solid transparent; cursor: pointer; transition: 0.15s; user-select: none;
+    }
+    .admin-pill:hover { background: #f8f9fb; border-color: var(--border); }
+    .admin-avatar {
+      width: 34px; height: 34px; border-radius: 50%; background: var(--crimson); color: #fff;
+      display: flex; align-items: center; justify-content: center; font-size: 14px;
+    }
+    .profile-dropdown {
+      position: absolute; top: 52px; right: 0; width: 255px; background: #fff;
+      border: 1px solid var(--border); border-radius: 12px; box-shadow: 0 14px 34px rgba(0,0,0,0.16);
+      z-index: 1200; overflow: hidden;
+    }
+    .profile-dd-head {
+      padding: 14px 16px; background: linear-gradient(135deg, #fff5f5 0%, #ffffff 100%);
+      border-bottom: 1px solid var(--border);
+    }
+    .profile-dd-head strong { display: block; font-size: 14.5px; color: var(--text-dark); }
+    .profile-dd-head span { display: block; font-size: 12px; color: var(--text-muted); margin-top: 2px; }
+    .profile-dd-item {
+      width: 100%; border: none; background: transparent; padding: 11px 16px;
+      display: flex; align-items: center; gap: 10px; font-size: 13.5px; font-weight: 600;
+      color: var(--text-dark); cursor: pointer; text-align: left;
+    }
+    .profile-dd-item:hover { background: #f7f8fa; color: var(--crimson); }
+    .profile-dd-item i { width: 16px; text-align: center; color: var(--crimson); }
+    .profile-dd-item.danger { color: var(--crimson); border-top: 1px solid var(--border); }
+
+    .page-body { padding: 22px 26px; max-width: 1420px; width: 100%; margin: 0 auto; flex: 1; }
+    .page-header { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 14px; margin-bottom: 20px; }
+    .page-title-wrap { display: flex; align-items: center; gap: 14px; }
+    .page-icon {
+      width: 44px; height: 44px; border-radius: 10px; background: var(--red-bg); color: var(--crimson);
+      display: flex; align-items: center; justify-content: center; font-size: 20px;
+    }
+    .page-title-wrap h2 { font-size: 22px; font-weight: 700; color: var(--text-dark); }
+    .page-title-wrap p { font-size: 13px; color: var(--text-muted); }
+    .header-actions { display: flex; gap: 10px; flex-wrap: wrap; }
+
+    .btn-crimson {
+      background: var(--crimson); color: #fff; border: none; padding: 10px 18px; border-radius: 8px;
+      font-size: 13.5px; font-weight: 600; cursor: pointer; display: inline-flex; align-items: center; gap: 8px;
+      box-shadow: 0 3px 8px rgba(168,21,31,0.22);
+    }
+    .btn-crimson:hover { background: var(--crimson-dark); }
+    .btn-outline {
+      background: #fff; color: var(--text-dark); border: 1px solid #d5dae2; padding: 9px 15px; border-radius: 8px;
+      font-size: 13.5px; font-weight: 600; cursor: pointer; display: inline-flex; align-items: center; gap: 7px;
+    }
+    .btn-outline:hover { background: #f8f9fb; }
+
+    /* KPI Strip */
+    .kpi-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 22px; }
+    @media (max-width: 1024px) { .kpi-grid { grid-template-columns: repeat(2, 1fr); } }
+    @media (max-width: 560px) { .kpi-grid { grid-template-columns: 1fr; } }
+
+    .kpi-card {
+      background: #fff; border: 1px solid var(--border); border-radius: 12px;
+      padding: 16px 18px; display: flex; align-items: center; gap: 15px; box-shadow: 0 2px 8px rgba(0,0,0,0.03);
+    }
+    .kpi-card.tint-green { background: #f3fbf4; border-color: #d6eed9; }
+    .kpi-card.tint-amber { background: #fffdf5; border-color: #f7e8be; }
+    .kpi-card.tint-red { background: #fff7f7; border-color: #f6d5d7; }
+    .kpi-card.tint-blue { background: #f4f9ff; border-color: #d3e5fb; }
+
+    .kpi-icon { width: 46px; height: 46px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 19px; flex-shrink: 0; }
+    .kpi-icon.red { background: var(--red-bg); color: var(--crimson); }
+    .kpi-icon.green { background: var(--green-bg); color: var(--green-txt); }
+    .kpi-icon.amber { background: var(--amber-bg); color: var(--amber-txt); }
+    .kpi-icon.blue { background: var(--blue-bg); color: var(--blue-txt); }
+    .kpi-info h3 { font-size: 22px; font-weight: 800; color: var(--text-dark); line-height: 1.15; }
+    .kpi-info p { font-size: 12.5px; color: var(--text-muted); font-weight: 500; margin-top: 2px; }
+
+    /* Panels */
+    .split-layout { display: grid; grid-template-columns: 320px 1fr; gap: 20px; align-items: start; }
+    @media (max-width: 960px) { .split-layout { grid-template-columns: 1fr; } }
+
+    .panel { background: #fff; border: 1px solid var(--border); border-radius: 12px; box-shadow: 0 2px 10px rgba(0,0,0,0.03); overflow: hidden; margin-bottom: 20px; }
+    .panel-header-red { background: var(--crimson); color: #fff; padding: 12px 18px; font-size: 14.5px; font-weight: 700; display: flex; align-items: center; justify-content: space-between; gap: 9px; }
+    .panel-header-white { padding: 14px 18px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; }
+    .panel-header-white h3 { font-size: 15.5px; font-weight: 700; color: var(--text-dark); display: flex; align-items: center; gap: 8px; }
+    .panel-header-white h3 i { color: var(--crimson); }
+    .panel-body { padding: 18px; }
+
+    /* Forms & Unit Stepper */
+    .form-group { margin-bottom: 13px; }
+    .form-row-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+    label { display: block; font-size: 12.5px; font-weight: 600; color: #374151; margin-bottom: 5px; }
+    label span.req { color: var(--crimson); }
+    .input-wrap { display: flex; align-items: center; gap: 8px; border: 1px solid #d1d5db; border-radius: 8px; padding: 0 11px; background: #fff; }
+    .input-wrap:focus-within { border-color: var(--crimson); box-shadow: 0 0 0 3px rgba(168,21,31,0.08); }
+    .input-wrap i { color: #8c95a4; font-size: 13px; }
+    .input-wrap input, .input-wrap select { border: none; outline: none; width: 100%; padding: 9px 0; font-size: 13.5px; background: transparent; color: var(--text-dark); }
+
+    .unit-stepper { display: flex; align-items: center; border: 1px solid #d1d5db; border-radius: 8px; overflow: hidden; background: #fff; }
+    .step-btn { width: 38px; height: 37px; border: none; background: #f3f4f6; color: var(--crimson-dark); font-size: 16px; font-weight: 800; cursor: pointer; }
+    .step-btn:hover { background: var(--red-bg); color: var(--crimson); }
+    .unit-stepper input { border: none; outline: none; text-align: center; width: 100%; font-weight: 800; font-size: 14.5px; color: var(--text-dark); }
+
+    .coverage-box { background: #f8fafc; border: 1px solid var(--border); border-radius: 10px; padding: 12px 14px; margin-top: 12px; }
+    .coverage-head { display: flex; justify-content: space-between; font-size: 12.5px; font-weight: 700; margin-bottom: 6px; }
+    .progress-track { width: 100%; height: 10px; background: #e5e7eb; border-radius: 20px; overflow: hidden; }
+    .progress-fill { height: 100%; width: 0%; background: var(--green-txt); border-radius: 20px; transition: width 0.3s ease, background 0.3s ease; }
+
+    .compat-stock-item { display: inline-flex; align-items: center; gap: 6px; padding: 5px 10px; border-radius: 8px; font-size: 12px; font-weight: 700; border: 1px solid var(--border); background: #fff; }
+    .compat-stock-item.has-stock { border-color: #b7e1bd; background: #f2fbf3; color: var(--green-txt); }
+    .compat-stock-item.no-stock { border-color: #f3d2d4; background: #fff7f7; color: #999; }
+
+    .filter-toolbar { display: grid; grid-template-columns: 1.8fr 1fr 1fr auto auto; gap: 10px; margin-bottom: 16px; align-items: end; }
+    @media (max-width: 820px) { .filter-toolbar { grid-template-columns: 1fr; } }
+
+    /* Tables */
+    .table-wrap { overflow-x: auto; border: 1px solid var(--border); border-radius: 10px; }
+    table { width: 100%; border-collapse: collapse; font-size: 13.5px; }
+    thead th { background: #f6f7fa; color: #4b5563; font-weight: 700; padding: 11px 12px; text-align: left; border-bottom: 1px solid var(--border); white-space: nowrap; }
+    thead.crimson-head th { background: var(--crimson); color: #fff; border-bottom: none; }
+    tbody td { padding: 11px 12px; border-bottom: 1px solid #f0f2f5; vertical-align: middle; }
+    tbody tr:hover { background: #fff9f9; }
+
+    .bg-pill { display: inline-block; background: var(--red-bg); color: var(--crimson); font-weight: 800; font-size: 12px; padding: 3px 10px; border-radius: 6px; min-width: 38px; text-align: center; }
+    .status-pill { display: inline-flex; align-items: center; gap: 5px; padding: 4px 10px; border-radius: 20px; font-size: 11.5px; font-weight: 700; white-space: nowrap; }
+    .status-pill.green { background: var(--green-bg); color: var(--green-txt); }
+    .status-pill.amber { background: var(--amber-bg); color: var(--amber-txt); }
+    .status-pill.red { background: var(--red-bg); color: var(--red-txt); }
+    .status-pill.blue { background: var(--blue-bg); color: var(--blue-txt); }
+
+    .status-select { padding: 4px 8px; border-radius: 6px; border: 1px solid #d1d5db; font-size: 12px; font-weight: 700; cursor: pointer; background: #fff; }
+    .tbl-actions { display: flex; gap: 6px; align-items: center; flex-wrap: wrap; }
+    .icon-action { width: 29px; height: 29px; border-radius: 6px; border: 1px solid var(--border); background: #fff; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; font-size: 12.5px; }
+    .icon-action.edit { color: var(--blue-txt); }
+    .icon-action.edit:hover { background: var(--blue-bg); }
+    .icon-action.del { color: var(--crimson); }
+    .icon-action.del:hover { background: var(--red-bg); }
+
+    /* Inventory Blood Cards */
+    .inv-grid { display: grid; grid-template-columns: 1.35fr 1fr; gap: 20px; }
+    @media (max-width: 1050px) { .inv-grid { grid-template-columns: 1fr; } }
+    .blood-cards-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
+    @media (max-width: 650px) { .blood-cards-grid { grid-template-columns: repeat(2, 1fr); } }
+    .bg-stock-card { border: 1px solid var(--border); border-radius: 10px; padding: 14px 10px; text-align: center; background: #fff; transition: 0.15s; }
+    .bg-stock-card:hover { transform: translateY(-2px); box-shadow: 0 5px 14px rgba(0,0,0,0.06); }
+    .bg-stock-card .bg-top { font-size: 17px; font-weight: 800; color: var(--text-dark); margin-bottom: 4px; }
+    .bg-stock-card .bg-top i { color: var(--crimson); margin-right: 4px; }
+    .bg-stock-card .bg-units { font-size: 15px; font-weight: 700; color: #333; margin-bottom: 8px; }
+
+    .compat-table { width: 100%; border-collapse: collapse; font-size: 12px; text-align: center; }
+    .compat-table th { background: var(--crimson); color: #fff; padding: 7px 4px; font-weight: 700; }
+    .compat-table td { padding: 6px 4px; border-bottom: 1px solid #eee; font-weight: 600; }
+    .compat-table td.row-lbl { font-weight: 800; color: var(--text-dark); background: #fafafa; }
+    .chk-yes { color: #2e7d32; font-weight: 900; font-size: 13px; }
+    .chk-no { color: #bbb; }
+
+    .rec-mid-grid { display: grid; grid-template-columns: 1.4fr 1.1fr 0.9fr; gap: 18px; margin-bottom: 20px; }
+    @media (max-width: 1150px) { .rec-mid-grid { grid-template-columns: 1fr; } }
+
+    /* ================= GRAPHICAL REPORTS & ANALYTICS ================= */
+    .rep-top-3 { display: grid; grid-template-columns: 1.15fr 1fr 0.95fr; gap: 18px; margin-bottom: 20px; }
+    .rep-bot-2 { display: grid; grid-template-columns: 1.3fr 1fr; gap: 18px; margin-bottom: 20px; }
+    @media (max-width: 1100px) { .rep-top-3, .rep-bot-2 { grid-template-columns: 1fr; } }
+
+    .bar-chart-area {
+      display: flex; align-items: flex-end; justify-content: space-around; height: 185px;
+      padding: 24px 10px 8px; border-bottom: 1.5px solid #d5dae2; gap: 8px;
+    }
+    .bar-col { display: flex; flex-direction: column; align-items: center; flex: 1; height: 100%; justify-content: flex-end; }
+    .bar-val { font-size: 11.5px; font-weight: 800; color: var(--text-dark); margin-bottom: 4px; }
+    .bar-fill { width: 100%; max-width: 34px; background: linear-gradient(180deg, #b71c1c 0%, #8e0d15 100%); border-radius: 5px 5px 0 0; min-height: 6px; transition: height 0.4s ease; }
+    .bar-lbl { font-size: 12px; font-weight: 700; color: #4b5563; margin-top: 7px; }
+
+    .donut-wrap { display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap; }
+    .donut-ring {
+      width: 126px; height: 126px; border-radius: 50%; display: flex; align-items: center; justify-content: center;
+      position: relative; flex-shrink: 0;
+    }
+    .donut-hole {
+      width: 78px; height: 78px; border-radius: 50%; background: #fff;
+      display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center;
+    }
+    .donut-hole strong { font-size: 19px; font-weight: 800; color: var(--text-dark); line-height: 1.1; }
+    .donut-hole span { font-size: 11px; color: var(--text-muted); font-weight: 600; }
+    .legend-list { flex: 1; display: flex; flex-direction: column; gap: 9px; font-size: 12.5px; }
+    .legend-row { display: flex; justify-content: space-between; align-items: center; }
+    .legend-dot { width: 9px; height: 9px; border-radius: 50%; display: inline-block; margin-right: 7px; }
+
+    .urg-card-row {
+      background: #f9fafb; border: 1px solid var(--border); border-radius: 9px;
+      padding: 11px 14px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;
+    }
+    .insight-row {
+      display: flex; justify-content: space-between; align-items: center;
+      padding: 9px 0; border-bottom: 1px solid #f1f3f6; font-size: 13px;
+    }
+    .insight-row:last-child { border-bottom: none; }
+    .rep-download-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
+    @media (max-width: 600px) { .rep-download-grid { grid-template-columns: repeat(2, 1fr); } }
+    .rep-dl-card {
+      border: 1px solid var(--border); border-radius: 10px; padding: 14px 8px; text-align: center;
+      background: #fff; cursor: pointer; transition: 0.15s;
+    }
+    .rep-dl-card:hover { border-color: var(--crimson); background: #fff8f8; transform: translateY(-2px); }
+    .rep-dl-card i { font-size: 20px; color: var(--crimson); margin-bottom: 7px; display: block; }
+    .rep-dl-card span { font-size: 12px; font-weight: 700; color: var(--text-dark); display: block; line-height: 1.3; }
+
+    /* ================= ADMIN CONTROL CENTER ================= */
+    .admin-tiles-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; margin-bottom: 20px; }
+    @media (max-width: 1050px) { .admin-tiles-grid { grid-template-columns: repeat(2, 1fr); } }
+    @media (max-width: 560px) { .admin-tiles-grid { grid-template-columns: 1fr; } }
+
+    .admin-tile {
+      background: #fff; border: 2px solid var(--border); border-radius: 11px; padding: 15px 16px;
+      display: flex; align-items: center; justify-content: space-between; gap: 12px;
+      cursor: pointer; transition: 0.15s; box-shadow: 0 2px 6px rgba(0,0,0,0.02);
+    }
+    .admin-tile:hover, .admin-tile.active-tile { border-color: var(--crimson); background: #fff9f9; transform: translateY(-2px); box-shadow: 0 6px 16px rgba(168,21,31,0.11); }
+    .admin-tile-left { display: flex; align-items: center; gap: 12px; }
+    .admin-tile-icon {
+      width: 40px; height: 40px; border-radius: 10px; background: var(--red-bg); color: var(--crimson);
+      display: flex; align-items: center; justify-content: center; font-size: 17px; flex-shrink: 0;
+    }
+    .admin-tile h4 { font-size: 13.5px; font-weight: 700; color: var(--text-dark); }
+    .admin-tile p { font-size: 11.5px; color: var(--text-muted); margin-top: 2px; }
+
+    .admin-mid-2 { display: grid; grid-template-columns: 1.45fr 1fr; gap: 18px; margin-bottom: 20px; }
+    .admin-bot-2 { display: grid; grid-template-columns: 1.35fr 1fr; gap: 18px; margin-bottom: 20px; }
+    @media (max-width: 1050px) { .admin-mid-2, .admin-bot-2 { grid-template-columns: 1fr; } }
+
+    .setting-row {
+      display: flex; justify-content: space-between; align-items: center;
+      padding: 11px 0; border-bottom: 1px solid #f0f2f5; font-size: 13.5px; font-weight: 600;
+    }
+    .setting-row:last-child { border-bottom: none; }
+    .switch { position: relative; display: inline-block; width: 42px; height: 22px; }
+    .switch input { opacity: 0; width: 0; height: 0; }
+    .slider {
+      position: absolute; cursor: pointer; inset: 0; background-color: #cbd5e1;
+      transition: .25s; border-radius: 34px;
+    }
+    .slider:before {
+      position: absolute; content: ""; height: 16px; width: 16px; left: 3px; bottom: 3px;
+      background-color: white; transition: .25s; border-radius: 50%;
+    }
+    input:checked + .slider { background-color: var(--crimson); }
+    input:checked + .slider:before { transform: translateX(20px); }
+
+    .quick-act-grid { display: grid; grid-template-columns: repeat(6, 1fr); gap: 10px; }
+    @media (max-width: 780px) { .quick-act-grid { grid-template-columns: repeat(3, 1fr); } }
+    .quick-act-btn {
+      border: 1px solid var(--border); border-radius: 10px; padding: 13px 8px; text-align: center;
+      background: #fff; cursor: pointer; transition: 0.15s;
+    }
+    .quick-act-btn:hover { border-color: var(--crimson); background: #fff8f8; }
+    .quick-act-btn i { font-size: 18px; color: var(--crimson); display: block; margin-bottom: 6px; }
+    .quick-act-btn span { font-size: 11.5px; font-weight: 700; color: var(--text-dark); display: block; line-height: 1.25; }
+
+    /* Modal */
+    .modal-backdrop { position: fixed; inset: 0; background: rgba(15,20,30,0.55); display: flex; align-items: center; justify-content: center; padding: 16px; z-index: 1500; }
+    .modal-box { background: #fff; width: 100%; max-width: 440px; border-radius: 14px; overflow: hidden; box-shadow: 0 20px 45px rgba(0,0,0,0.25); }
+    .msg-banner { font-size: 13px; font-weight: 600; margin-top: 10px; text-align: center; }
+    .empty-row { text-align: center; padding: 28px !important; color: var(--text-muted); }
+
+    /* Footer */
+    .premium-footer { background: #1b1111; color: #d6cece; margin-top: 38px; padding: 42px 28px 24px; border-top: 3px solid var(--crimson); }
+    .footer-inner { max-width: 1380px; margin: 0 auto; display: grid; grid-template-columns: 1.4fr 0.8fr 1.2fr; gap: 36px; padding-bottom: 28px; border-bottom: 1px solid rgba(255, 255, 255, 0.1); }
+    @media (max-width: 860px) { .footer-inner { grid-template-columns: 1fr; gap: 26px; } }
+    .footer-brand-head { display: flex; align-items: center; gap: 11px; margin-bottom: 14px; }
+    .footer-drop-icon { width: 34px; height: 34px; border-radius: 50%; background: var(--crimson); color: #fff; display: flex; align-items: center; justify-content: center; font-size: 16px; }
+    .footer-brand-head h3 { color: #fff; font-size: 19px; font-weight: 800; }
+    .footer-desc { font-size: 13.5px; line-height: 1.65; color: #b5aaaa; max-width: 380px; }
+    .footer-col-title { font-size: 11.5px; font-weight: 800; letter-spacing: 1.3px; text-transform: uppercase; color: #9c8f8f; margin-bottom: 14px; }
+    .footer-links { list-style: none; display: flex; flex-direction: column; gap: 10px; }
+    .footer-links a { color: #e5dede; text-decoration: none; font-size: 13.5px; cursor: pointer; }
+    .footer-links a:hover { color: #ff6b6b; padding-left: 4px; }
+    .footer-pills { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 14px; }
+    .footer-bg-pill { background: #7f141b; color: #fff; border: 1px solid rgba(255,255,255,0.12); padding: 5px 13px; border-radius: 20px; font-size: 12px; font-weight: 700; cursor: pointer; }
+    .footer-bg-pill:hover { background: var(--crimson-bright); }
+    .footer-note { font-size: 12.5px; line-height: 1.55; color: #a89d9d; }
+    .footer-bottom { max-width: 1380px; margin: 18px auto 0; font-size: 12px; color: #8c8080; }
+
+    @media print {
+      .sidebar, .topbar, .premium-footer, .header-actions { display: none !important; }
+      .page-body { padding: 0; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ==================== 1. LOGIN & REGISTRATION ==================== -->
+  <div id="authSection" class="auth-wrapper">
+    <div class="auth-quote-side">
+      <div class="auth-quote-pill"><i class="fa-solid fa-heart-pulse"></i> Community Blood Bank Network</div>
+      <h1>Every drop reaches someone’s tomorrow.</h1>
+      <p>A digital platform connecting voluntary blood donors with patients and hospitals in real time. Register once, manage live inventory, and help save up to 3 lives with a single donation.</p>
+    </div>
+
+    <div id="loginBox" class="auth-card">
+      <div class="auth-brand">
+        <div class="logo-circle"><i class="fa-solid fa-plus"></i></div>
+        <div><h2>Blood Bank</h2><span style="font-size:12px; color:#666; font-weight:600;">Information System</span></div>
+      </div>
+      <p class="auth-sub">Sign in to access donors, receivers & inventory</p>
+      <form id="loginForm">
+        <div class="form-group">
+          <label>Email Address <span class="req">*</span></label>
+          <div class="input-wrap"><i class="fa-solid fa-envelope"></i><input type="email" id="loginEmail" placeholder="admin@bloodbank.com" required /></div>
+        </div>
+        <div class="form-group">
+          <label>Password <span class="req">*</span></label>
+          <div class="input-wrap"><i class="fa-solid fa-lock"></i><input type="password" id="loginPassword" placeholder="Enter your password" required /></div>
+        </div>
+        <button type="submit" class="btn-crimson" style="width:100%; justify-content:center; padding:11px; margin-top:6px;"><i class="fa-solid fa-right-to-bracket"></i> Sign In</button>
+        <div id="loginMsg" class="msg-banner"></div>
+      </form>
+      <div class="auth-switch">Don't have an account? <a id="toRegister">Sign Up</a></div>
+    </div>
+
+    <div id="registerBox" class="auth-card hidden">
+      <div class="auth-brand">
+        <div class="logo-circle"><i class="fa-solid fa-user-plus"></i></div>
+        <div><h2>Create Account</h2><span style="font-size:12px; color:#666; font-weight:600;">Blood Bank Staff Portal</span></div>
+      </div>
+      <p class="auth-sub">Register to manage blood bank operations</p>
+      <form id="registerForm">
+        <div class="form-group">
+          <label>Full Name <span class="req">*</span></label>
+          <div class="input-wrap"><i class="fa-solid fa-user"></i><input type="text" id="regName" placeholder="e.g. Adarsh Singh" required /></div>
+        </div>
+        <div class="form-group">
+          <label>Email Address <span class="req">*</span></label>
+          <div class="input-wrap"><i class="fa-solid fa-envelope"></i><input type="email" id="regEmail" placeholder="admin@bloodbank.com" required /></div>
+        </div>
+        <div class="form-group">
+          <label>Password <span class="req">*</span></label>
+          <div class="input-wrap"><i class="fa-solid fa-lock"></i><input type="password" id="regPassword" placeholder="Create strong password" required /></div>
+        </div>
+        <button type="submit" class="btn-crimson" style="width:100%; justify-content:center; padding:11px; margin-top:6px;"><i class="fa-solid fa-check"></i> Register & Continue</button>
+        <div id="regMsg" class="msg-banner"></div>
+      </form>
+      <div class="auth-switch">Already registered? <a id="toLogin">Back to Login</a></div>
+    </div>
+  </div>
+
+  <!-- ==================== 2. MAIN DASHBOARD SHELL ==================== -->
+  <div id="appSection" class="app-shell hidden">
+    <aside class="sidebar" id="sidebar">
+      <div>
+        <div class="sidebar-brand">
+          <div class="cross-badge"><i class="fa-solid fa-plus"></i></div>
+          <div><h1>Blood Bank<span>Information System</span></h1></div>
+        </div>
+
+        <nav class="nav-menu">
+          <button class="nav-item active" data-view="dashboardView"><i class="fa-solid fa-house"></i> Dashboard</button>
+          <button class="nav-item" data-view="donorsView"><i class="fa-solid fa-users"></i> Donors</button>
+          <button class="nav-item" data-view="receiversView"><i class="fa-solid fa-user-injured"></i> Receivers</button>
+          <button class="nav-item" data-view="inventoryView"><i class="fa-solid fa-box-archive"></i> Inventory</button>
+          <button class="nav-item" data-view="compatibilityView"><i class="fa-solid fa-right-left"></i> Blood Compatibility</button>
+          <button class="nav-item" data-view="reportsView"><i class="fa-solid fa-chart-column"></i> Reports & Analytics</button>
+          <button class="nav-item hidden" id="adminNavBtn" data-view="adminView"><i class="fa-solid fa-shield-halved"></i> Admin Controls</button>
+          <button class="nav-item" id="logoutBtn" style="margin-top:10px; color:#ffd6d9;"><i class="fa-solid fa-right-from-bracket"></i> Logout</button>
+        </nav>
+      </div>
+
+      <div class="sidebar-footer">
+        <div class="ecg-box">
+          <svg viewBox="0 0 180 55" width="100%" height="46">
+            <polyline fill="none" stroke="rgba(255,255,255,0.75)" stroke-width="2.2" points="0,32 30,32 40,22 48,38 56,10 66,48 75,28 90,28 102,32 180,32" />
+            <circle cx="145" cy="27" r="14" fill="rgba(255,255,255,0.18)" />
+            <text x="145" y="32" text-anchor="middle" fill="#fff" font-size="16" font-weight="bold">+</text>
+          </svg>
+          <div style="font-size:11px; opacity:0.85; margin-top:4px;">Save Lives • Donate Blood</div>
+        </div>
+      </div>
+    </aside>
+
+    <div class="main-area">
+      <!-- TOPBAR WITH CLICKABLE PROFILE ICON -->
+      <header class="topbar">
+        <div class="topbar-left">
+          <button class="menu-toggle" id="toggleSidebarBtn"><i class="fa-solid fa-bars"></i></button>
+          <div class="global-search">
+            <i class="fa-solid fa-magnifying-glass"></i>
+            <input type="text" id="topQuickSearch" placeholder="Search donors, receivers, requests, blood groups..." />
+          </div>
+        </div>
+
+        <div class="topbar-right">
+          <button class="notif-btn" title="Live Alerts" onclick="goView('adminView'); openAdminSubPanel('alertsSubPanel');">
+            <i class="fa-regular fa-bell"></i><span class="notif-dot"></span>
+          </button>
+
+          <!-- Clickable Profile Pill -->
+          <div class="admin-pill" id="profileTriggerBtn" title="Click for Account & Profile">
+            <div class="admin-avatar"><i class="fa-solid fa-user"></i></div>
+            <span id="loggedUserName">Admin</span>
+            <span id="loggedUserRole" class="status-pill green" style="font-size:11px;">USER</span>
+            <i class="fa-solid fa-chevron-down" style="font-size:11px; color:var(--text-muted);"></i>
+          </div>
+
+          <!-- Profile Dropdown Menu -->
+          <div id="profileDropdown" class="profile-dropdown hidden">
+            <div class="profile-dd-head">
+              <strong id="ddProfileName">Staff User</strong>
+              <span id="ddProfileEmail">user@bloodbank.com</span>
+            </div>
+            <button type="button" class="profile-dd-item" onclick="openProfileModal()"><i class="fa-solid fa-id-card"></i> My Profile & Role</button>
+            <button type="button" class="profile-dd-item" onclick="goView('reportsView'); closeProfileDropdown();"><i class="fa-solid fa-chart-line"></i> Reports & Analytics</button>
+            <button type="button" class="profile-dd-item hidden" id="ddAdminCtrlBtn" onclick="goView('adminView'); closeProfileDropdown();"><i class="fa-solid fa-shield-halved"></i> Admin Controls</button>
+            <button type="button" class="profile-dd-item danger" onclick="doLogout()"><i class="fa-solid fa-right-from-bracket"></i> Sign Out</button>
+          </div>
+        </div>
+      </header>
+
+      <div class="page-body">
+
+        <!-- ========== VIEW 1: DASHBOARD ========== -->
+        <div id="dashboardView" class="view-section">
+          <section class="hero-banner">
+            <div class="hero-content">
+              <div class="hero-badge"><i class="fa-solid fa-droplet"></i> Community Blood Bank & Donor Network</div>
+              <h1 class="hero-title">Every drop reaches <span>someone’s tomorrow.</span></h1>
+              <p class="hero-subtitle">A digital platform to manage voluntary blood donors, receiver requests, and real-time blood inventory efficiently. Save up to 3 lives with a single donation.</p>
+              <div class="hero-actions">
+                <button class="btn-crimson" onclick="goView('donorsView')"><i class="fa-solid fa-user-plus"></i> Register as Donor</button>
+                <button class="btn-outline" onclick="goView('receiversView')"><i class="fa-solid fa-droplet"></i> Request Blood</button>
+              </div>
+            </div>
+          </section>
+
+          <div class="page-header">
+            <div class="page-title-wrap">
+              <div class="page-icon"><i class="fa-solid fa-heart-pulse"></i></div>
+              <div><h2>System Overview</h2><p>Real-time summary of donors, blood inventory & patient requests</p></div>
+            </div>
+            <div class="header-actions">
+              <button class="btn-outline" onclick="exportDonorsCSV()"><i class="fa-solid fa-download"></i> Export CSV</button>
+              <button class="btn-crimson" onclick="goView('donorsView')"><i class="fa-solid fa-plus"></i> Register New Donor</button>
+            </div>
+          </div>
+
+          <div class="kpi-grid">
+            <div class="kpi-card"><div class="kpi-icon red"><i class="fa-solid fa-users"></i></div><div class="kpi-info"><h3 id="dashTotalDonors">0</h3><p>Total Registered Donors</p></div></div>
+            <div class="kpi-card tint-blue"><div class="kpi-icon blue"><i class="fa-solid fa-user-injured"></i></div><div class="kpi-info"><h3 id="dashTotalReceivers">0</h3><p>Total Blood Receivers</p></div></div>
+            <div class="kpi-card tint-green"><div class="kpi-icon green"><i class="fa-solid fa-droplet"></i></div><div class="kpi-info"><h3 id="dashAvailUnits">0 Units</h3><p>Available Blood Stock</p></div></div>
+            <div class="kpi-card tint-amber"><div class="kpi-icon amber"><i class="fa-solid fa-triangle-exclamation"></i></div><div class="kpi-info"><h3 id="dashLowGroups">0 Groups</h3><p>Low / Out of Stock Groups</p></div></div>
+          </div>
+
+          <div class="inv-grid">
+            <div class="panel">
+              <div class="panel-header-white"><h3><i class="fa-solid fa-droplet"></i> Live Blood Group Stock</h3><button class="btn-outline" style="padding:5px 11px; font-size:12px;" onclick="goView('inventoryView')">Full Inventory →</button></div>
+              <div class="panel-body"><div id="dashBloodGrid" class="blood-cards-grid"></div></div>
+            </div>
+            <div class="panel">
+              <div class="panel-header-white"><h3><i class="fa-solid fa-clock-rotate-left"></i> Recent Activities (MongoDB)</h3></div>
+              <div class="panel-body"><div id="activityFeed" style="display:flex; flex-direction:column; gap:10px; font-size:13.5px;"></div></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ========== VIEW 2: DONORS ========== -->
+        <div id="donorsView" class="view-section hidden">
+          <div class="page-header">
+            <div class="page-title-wrap"><div class="page-icon"><i class="fa-solid fa-users"></i></div><div><h2>Donor Management</h2><p>Register, view, filter and manage blood donors</p></div></div>
+            <div class="header-actions"><button class="btn-outline" onclick="exportDonorsCSV()"><i class="fa-solid fa-file-export"></i> Export</button></div>
+          </div>
+
+          <div class="kpi-grid">
+            <div class="kpi-card"><div class="kpi-icon red"><i class="fa-solid fa-users"></i></div><div class="kpi-info"><h3 id="dKpiTotal">0</h3><p>Total Donors</p></div></div>
+            <div class="kpi-card tint-green"><div class="kpi-icon green"><i class="fa-solid fa-circle-check"></i></div><div class="kpi-info"><h3 id="dKpiEligible">0</h3><p>Eligible Donors (18-60)</p></div></div>
+            <div class="kpi-card tint-amber"><div class="kpi-icon amber"><i class="fa-solid fa-city"></i></div><div class="kpi-info"><h3 id="dKpiCities">0</h3><p>Cities Covered</p></div></div>
+            <div class="kpi-card"><div class="kpi-icon red"><i class="fa-solid fa-heart-pulse"></i></div><div class="kpi-info"><h3 id="dKpiUnits">0</h3><p>Units Contributed</p></div></div>
+          </div>
+
+          <div class="split-layout">
+            <div class="panel">
+              <div class="panel-header-red"><i class="fa-solid fa-user-plus"></i> Register Donor</div>
+              <div class="panel-body">
+                <form id="donorForm">
+                  <div class="form-group"><label>Full Name <span class="req">*</span></label><div class="input-wrap"><i class="fa-solid fa-user"></i><input type="text" id="dName" placeholder="Enter donor name" required /></div></div>
+                  <div class="form-row-2">
+                    <div class="form-group"><label>Age <span class="req">*</span></label><div class="input-wrap"><i class="fa-solid fa-calendar"></i><input type="number" id="dAge" min="18" max="65" placeholder="e.g. 24" required /></div></div>
+                    <div class="form-group"><label>Blood Group <span class="req">*</span></label><div class="input-wrap"><i class="fa-solid fa-droplet"></i><select id="dGroup" required><option value="">Select</option><option value="A+">A+</option><option value="A-">A-</option><option value="B+">B+</option><option value="B-">B-</option><option value="O+">O+</option><option value="O-">O-</option><option value="AB+">AB+</option><option value="AB-">AB-</option></select></div></div>
+                  </div>
+                  <div class="form-group"><label>Phone Number <span class="req">*</span></label><div class="input-wrap"><i class="fa-solid fa-phone"></i><input type="tel" id="dPhone" placeholder="Enter 10-digit number" required /></div></div>
+                  <div class="form-group"><label>City <span class="req">*</span></label><div class="input-wrap"><i class="fa-solid fa-location-dot"></i><input type="text" id="dCity" placeholder="Enter city" required /></div></div>
+                  <div style="display:flex; gap:10px; margin-top:16px;">
+                    <button type="submit" class="btn-crimson" style="flex:1; justify-content:center;"><i class="fa-solid fa-floppy-disk"></i> Register Donor</button>
+                    <button type="button" class="btn-outline" onclick="document.getElementById('donorForm').reset()"><i class="fa-solid fa-rotate-right"></i> Clear</button>
+                  </div>
+                  <div id="donorMsg" class="msg-banner"></div>
+                </form>
+              </div>
+            </div>
+
+            <div class="panel">
+              <div class="panel-header-white"><h3><i class="fa-solid fa-clipboard-list"></i> Donor Records</h3><span style="font-size:12.5px; color:var(--text-muted); font-weight:600;" id="donorShowingText">Showing 0 donors</span></div>
+              <div class="panel-body">
+                <div class="filter-toolbar">
+                  <div><label>Search Name or Phone</label><div class="input-wrap"><i class="fa-solid fa-magnifying-glass"></i><input type="text" id="searchDonorInput" placeholder="Search by name or phone..." /></div></div>
+                  <div><label>Blood Group</label><div class="input-wrap"><i class="fa-solid fa-droplet"></i><select id="filterBgSelect"><option value="">All Groups</option><option value="A+">A+</option><option value="A-">A-</option><option value="B+">B+</option><option value="B-">B-</option><option value="O+">O+</option><option value="O-">O-</option><option value="AB+">AB+</option><option value="AB-">AB-</option></select></div></div>
+                  <div><label>City</label><div class="input-wrap"><i class="fa-solid fa-location-dot"></i><input type="text" id="filterCityInput" placeholder="All Cities" /></div></div>
+                  <button type="button" class="btn-crimson" onclick="renderDonors()"><i class="fa-solid fa-search"></i> Search</button>
+                  <button type="button" class="btn-outline" id="clearDonorFilters">Clear</button>
+                </div>
+                <div class="table-wrap">
+                  <table>
+                    <thead><tr><th>#</th><th>Name</th><th>Age</th><th>Blood Group</th><th>Phone</th><th>City</th><th>Status</th><th>Actions</th></tr></thead>
+                    <tbody id="donorTableBody"><tr><td colspan="8" class="empty-row">Loading donors...</td></tr></tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ========== VIEW 3: RECEIVERS ========== -->
+        <div id="receiversView" class="view-section hidden">
+          <div class="page-header">
+            <div class="page-title-wrap"><div class="page-icon"><i class="fa-solid fa-user-injured"></i></div><div><h2>Receiver Management</h2><p>Request blood units with urgency level, coverage indicator & unique tracking ID</p></div></div>
+          </div>
+
+          <div class="kpi-grid">
+            <div class="kpi-card"><div class="kpi-icon red"><i class="fa-solid fa-users"></i></div><div class="kpi-info"><h3 id="rKpiTotal">0</h3><p>Total Receivers</p></div></div>
+            <div class="kpi-card tint-red"><div class="kpi-icon red"><i class="fa-solid fa-droplet"></i></div><div class="kpi-info"><h3 id="rKpiUnits">0</h3><p>Total Units Requested</p></div></div>
+            <div class="kpi-card tint-green"><div class="kpi-icon green"><i class="fa-solid fa-circle-check"></i></div><div class="kpi-info"><h3 id="rKpiStock">0</h3><p>Available Stock Units</p></div></div>
+            <div class="kpi-card tint-amber"><div class="kpi-icon amber"><i class="fa-solid fa-clock"></i></div><div class="kpi-info"><h3 id="rKpiActive">0</h3><p>Active Requests</p></div></div>
+          </div>
+
+          <div class="rec-mid-grid">
+            <div class="panel">
+              <div class="panel-header-red"><i class="fa-solid fa-droplet"></i> Request Blood</div>
+              <div class="panel-body">
+                <form id="receiverForm">
+                  <div class="form-row-2">
+                    <div class="form-group"><label>Receiver Name <span class="req">*</span></label><div class="input-wrap"><i class="fa-solid fa-user"></i><input type="text" id="rName" placeholder="Patient name" required /></div></div>
+                    <div class="form-group"><label>Blood Group <span class="req">*</span></label><div class="input-wrap"><i class="fa-solid fa-droplet"></i><select id="rGroup" required><option value="A+">A+</option><option value="A-">A-</option><option value="B+" selected>B+</option><option value="B-">B-</option><option value="O+">O+</option><option value="O-">O-</option><option value="AB+">AB+</option><option value="AB-">AB-</option></select></div></div>
+                  </div>
+                  <div class="form-row-2">
+                    <div class="form-group"><label>Units Required <span class="req">*</span></label><div class="unit-stepper"><button type="button" class="step-btn" onclick="stepUnits(-1)">−</button><input type="number" id="rUnits" min="1" max="20" value="1" readonly /><button type="button" class="step-btn" onclick="stepUnits(1)">+</button></div></div>
+                    <div class="form-group"><label>Urgency Level <span class="req">*</span></label><div class="input-wrap"><i class="fa-solid fa-truck-medical"></i><select id="rUrgency" required><option value="Normal">Normal</option><option value="Urgent">Urgent</option><option value="Emergency">Emergency</option></select></div></div>
+                  </div>
+                  <div class="form-row-2">
+                    <div class="form-group"><label>Required By Date <span class="req">*</span></label><div class="input-wrap"><i class="fa-solid fa-calendar-day"></i><input type="date" id="rDate" required /></div></div>
+                    <div class="form-group"><label>Contact Phone <span class="req">*</span></label><div class="input-wrap"><i class="fa-solid fa-phone"></i><input type="tel" id="rPhone" placeholder="10-digit mobile" required /></div></div>
+                  </div>
+                  <div class="form-group"><label>Hospital / City <span class="req">*</span></label><div class="input-wrap"><i class="fa-solid fa-hospital"></i><input type="text" id="rCity" placeholder="e.g. AIIMS Delhi" required /></div></div>
+                  <button type="submit" class="btn-crimson" style="width:100%; justify-content:center; margin-top:4px;"><i class="fa-solid fa-paper-plane"></i> Submit Blood Request</button>
+                  <div id="receiverMsg" class="msg-banner"></div>
+                </form>
+              </div>
+            </div>
+
+            <div class="panel">
+              <div class="panel-header-white"><h3><i class="fa-solid fa-dna"></i> Compatible Stock Finder (<span id="compatTargetBg">B+</span>)</h3></div>
+              <div class="panel-body">
+                <p style="font-size:12.5px; color:var(--text-muted); margin-bottom:10px; font-weight:600;">Compatible Donor Groups & Live Available Units:</p>
+                <div id="compatStockFinderBox" style="display:flex; flex-wrap:wrap; gap:8px; margin-bottom:16px;"></div>
+                <div style="background:#f9fafb; border-radius:8px; padding:10px 12px; font-size:12.5px; display:flex; justify-content:space-between; align-items:center;">
+                  <span>Total Compatible Pool:</span>
+                  <strong style="color:var(--crimson); font-size:14px;" id="totalCompatPoolUnits">0 Units</strong>
+                </div>
+                <p style="font-size:12px; color:var(--text-muted); margin-top:14px; margin-bottom:6px; font-weight:600;">Can Also Donate To:</p>
+                <div id="canDonateBadges" style="display:flex; flex-wrap:wrap; gap:6px;"></div>
+              </div>
+            </div>
+
+            <div class="panel">
+              <div class="panel-header-white"><h3><i class="fa-solid fa-chart-pie"></i> <span id="stockCardBg">B+</span> Coverage</h3></div>
+              <div class="panel-body" style="text-align:center;">
+                <div style="font-size:28px; font-weight:800; color:var(--crimson);" id="selectedBgUnits">0 Units</div>
+                <div style="margin:6px 0 12px;" id="selectedBgStatus"></div>
+                <div class="coverage-box" style="text-align:left;">
+                  <div class="coverage-head"><span>Requirement Coverage</span><span id="coveragePctText" style="color:var(--green-txt);">0%</span></div>
+                  <div class="progress-track"><div class="progress-fill" id="coverageProgressBar"></div></div>
+                  <p id="coverageHintText" style="font-size:11.5px; color:var(--text-muted); margin-top:7px;">Checking live stock for requested units...</p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="panel">
+            <div class="panel-header-white"><h3><i class="fa-solid fa-list-check"></i> Receiver Requests & Tracking</h3></div>
+            <div class="panel-body">
+              <div class="table-wrap">
+                <table>
+                  <thead class="crimson-head">
+                    <tr><th>Tracking ID</th><th>Receiver Name</th><th>Group</th><th>Units</th><th>Urgency</th><th>Required By</th><th>Phone / Hospital</th><th>Request Status</th><th>Action</th></tr>
+                  </thead>
+                  <tbody id="receiverTableBody"><tr><td colspan="9" class="empty-row">No receiver requests yet.</td></tr></tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ========== VIEW 4: INVENTORY ========== -->
+        <div id="inventoryView" class="view-section hidden">
+          <div class="page-header">
+            <div class="page-title-wrap"><div class="page-icon"><i class="fa-solid fa-box-archive"></i></div><div><h2>Blood Inventory</h2><p>Manage blood stock, availability and donor-recipient compatibility</p></div></div>
+            <div class="header-actions">
+              <button class="btn-crimson" onclick="goView('donorsView')"><i class="fa-solid fa-plus"></i> Add Units via Donor</button>
+              <button class="btn-outline" onclick="loadAllData()"><i class="fa-solid fa-rotate"></i> Update Stock</button>
+            </div>
+          </div>
+
+          <div class="kpi-grid">
+            <div class="kpi-card"><div class="kpi-icon red"><i class="fa-solid fa-vial"></i></div><div class="kpi-info"><h3 id="invTotalStock">0 Units</h3><p>Total Blood Collected</p></div></div>
+            <div class="kpi-card tint-green"><div class="kpi-icon green"><i class="fa-solid fa-circle-check"></i></div><div class="kpi-info"><h3 id="invAvailStock">0 Units</h3><p>Available Stock</p></div></div>
+            <div class="kpi-card tint-amber"><div class="kpi-icon amber"><i class="fa-solid fa-triangle-exclamation"></i></div><div class="kpi-info"><h3 id="invIssuedStock">0 Units</h3><p>Issued to Receivers</p></div></div>
+            <div class="kpi-card tint-red"><div class="kpi-icon red"><i class="fa-solid fa-circle-xmark"></i></div><div class="kpi-info"><h3 id="invOutCount">0 Groups</h3><p>Out of Stock Groups</p></div></div>
+          </div>
+
+          <div class="inv-grid">
+            <div class="panel">
+              <div class="panel-header-white"><h3><i class="fa-solid fa-layer-group"></i> Blood Group Availability</h3></div>
+              <div class="panel-body"><div id="invCardsGrid" class="blood-cards-grid"></div></div>
+            </div>
+            <div class="panel">
+              <div class="panel-header-white"><h3><i class="fa-solid fa-droplet"></i> Blood Compatibility Chart</h3></div>
+              <div class="panel-body" style="padding:12px;"><div class="table-wrap"><table class="compat-table" id="compatMatrixTable"></table></div></div>
+            </div>
+          </div>
+
+          <div class="panel">
+            <div class="panel-header-white"><h3><i class="fa-solid fa-table-list"></i> Inventory Details</h3></div>
+            <div class="panel-body">
+              <div class="table-wrap">
+                <table>
+                  <thead class="crimson-head"><tr><th>S.No.</th><th>Blood Group</th><th>Donated + Adj Units</th><th>Issued + Expired</th><th>Available Units</th><th>Status</th></tr></thead>
+                  <tbody id="invDetailsBody"></tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ========== VIEW 5: COMPATIBILITY ========== -->
+        <div id="compatibilityView" class="view-section hidden">
+          <div class="page-header">
+            <div class="page-title-wrap"><div class="page-icon"><i class="fa-solid fa-right-left"></i></div><div><h2>Blood Compatibility Guide</h2><p>Safe transfusion matching rules for donors and recipients</p></div></div>
+          </div>
+          <div class="inv-grid">
+            <div class="panel"><div class="panel-header-white"><h3><i class="fa-solid fa-table"></i> Full Donor → Recipient Matrix</h3></div><div class="panel-body"><div class="table-wrap"><table class="compat-table" id="compatFullTable"></table></div></div></div>
+            <div class="panel">
+              <div class="panel-header-white"><h3><i class="fa-solid fa-lightbulb"></i> Key Clinical Rules</h3></div>
+              <div class="panel-body" style="display:flex; flex-direction:column; gap:12px; font-size:14px; line-height:1.5;">
+                <div><i class="fa-solid fa-check" style="color:var(--crimson);"></i> <strong>O- is the Universal Donor:</strong> Red blood cells from O- can be safely transfused to any blood group in emergencies.</div>
+                <div><i class="fa-solid fa-check" style="color:var(--crimson);"></i> <strong>AB+ is the Universal Recipient:</strong> Patients with AB+ can receive red blood cells from all 8 blood groups.</div>
+                <div><i class="fa-solid fa-check" style="color:var(--crimson);"></i> <strong>Rh Factor Rule:</strong> Rh-negative patients should strictly receive Rh-negative blood to prevent antibodies.</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ========== VIEW 6: GRAPHICAL REPORTS & ANALYTICS ========== -->
+        <div id="reportsView" class="view-section hidden">
+          <div class="page-header">
+            <div class="page-title-wrap">
+              <div class="page-icon"><i class="fa-solid fa-chart-column"></i></div>
+              <div><h2>Reports & Analytics</h2><p>Complete insights, statistics and performance reports of the blood bank.</p></div>
+            </div>
+            <div class="header-actions">
+              <select id="repRangeFilter" class="btn-outline" style="padding:8px 12px;" onchange="renderGraphicalReports()">
+                <option value="30">Last 30 Days</option>
+                <option value="90">Last 90 Days</option>
+                <option value="all">All Time</option>
+              </select>
+              <button class="btn-crimson" onclick="window.print()"><i class="fa-solid fa-file-pdf"></i> Export PDF</button>
+              <button class="btn-outline" onclick="exportDonorsCSV()"><i class="fa-solid fa-file-csv"></i> Export CSV</button>
+              <button class="btn-outline" onclick="window.print()"><i class="fa-solid fa-print"></i> Print</button>
+            </div>
+          </div>
+
+          <div class="kpi-grid">
+            <div class="kpi-card"><div class="kpi-icon red"><i class="fa-solid fa-users"></i></div><div class="kpi-info"><h3 id="repTotalDonors">0</h3><p>Total Donors</p></div></div>
+            <div class="kpi-card"><div class="kpi-icon red"><i class="fa-solid fa-droplet"></i></div><div class="kpi-info"><h3 id="repTotalReq">0</h3><p>Total Blood Requests</p></div></div>
+            <div class="kpi-card tint-green"><div class="kpi-icon green"><i class="fa-solid fa-circle-check"></i></div><div class="kpi-info"><h3 id="repFulfilled">0</h3><p>Fulfilled Requests</p></div></div>
+            <div class="kpi-card tint-red"><div class="kpi-icon red"><i class="fa-solid fa-heart-pulse"></i></div><div class="kpi-info"><h3 id="repRate">0%</h3><p>Fulfillment Rate</p></div></div>
+          </div>
+
+          <div class="rep-top-3">
+            <div class="panel">
+              <div class="panel-header-red"><span><i class="fa-solid fa-droplet"></i> Blood Group Stock Distribution</span></div>
+              <div class="panel-body">
+                <div class="bar-chart-area" id="repBarChart"></div>
+                <div style="text-align:center; font-size:11.5px; color:var(--text-muted); font-weight:700; margin-top:8px;">Blood Group (Available Units)</div>
+              </div>
+            </div>
+
+            <div class="panel">
+              <div class="panel-header-red"><span><i class="fa-solid fa-chart-pie"></i> Request Status Analysis</span></div>
+              <div class="panel-body">
+                <div class="donut-wrap">
+                  <div class="donut-ring" id="repDonutRing"><div class="donut-hole"><strong id="repDonutTotal">0</strong><span>Requests</span></div></div>
+                  <div class="legend-list" id="repDonutLegend"></div>
+                </div>
+              </div>
+            </div>
+
+            <div class="panel">
+              <div class="panel-header-red"><span><i class="fa-solid fa-bell"></i> Urgency Wise Requests</span></div>
+              <div class="panel-body" id="repUrgencyBox"></div>
+            </div>
+          </div>
+
+          <div class="rep-bot-2">
+            <div class="panel">
+              <div class="panel-header-red"><span><i class="fa-solid fa-bullseye"></i> Quick Insights</span></div>
+              <div class="panel-body" id="repInsightsBox"></div>
+            </div>
+
+            <div class="panel">
+              <div class="panel-header-red"><span><i class="fa-solid fa-folder-open"></i> Export Reports</span></div>
+              <div class="panel-body">
+                <div class="rep-download-grid">
+                  <div class="rep-dl-card" onclick="exportDonorsCSV()"><i class="fa-solid fa-users"></i><span>Donor Report (CSV)</span></div>
+                  <div class="rep-dl-card" onclick="exportInventoryCSV()"><i class="fa-solid fa-droplet"></i><span>Inventory Report (CSV)</span></div>
+                  <div class="rep-dl-card" onclick="exportReceiversCSV()"><i class="fa-solid fa-file-lines"></i><span>Request Report (CSV)</span></div>
+                  <div class="rep-dl-card" onclick="window.print()"><i class="fa-solid fa-file-pdf"></i><span>Full PDF Summary</span></div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="panel">
+            <div class="panel-header-red"><span><i class="fa-solid fa-list"></i> Recent Blood Requests</span></div>
+            <div class="panel-body">
+              <div class="table-wrap">
+                <table>
+                  <thead class="crimson-head"><tr><th>Tracking ID</th><th>Receiver</th><th>Group</th><th>Units</th><th>Urgency</th><th>Status</th><th>Required By</th></tr></thead>
+                  <tbody id="repRecentReqBody"></tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ========== VIEW 7: DEDICATED ADMIN CONTROLS ========== -->
+        <div id="adminView" class="view-section hidden">
+          <div class="page-header">
+            <div class="page-title-wrap">
+              <div class="page-icon"><i class="fa-solid fa-shield-halved"></i></div>
+              <div><h2>Admin Controls</h2><p>Dedicated admin functionality for users, approvals, inventory, donors, hospitals & alerts</p></div>
+            </div>
+            <div class="header-actions">
+              <button class="btn-outline" onclick="downloadSystemBackup()"><i class="fa-solid fa-database"></i> Backup JSON</button>
+              <button class="btn-crimson" onclick="loadUsersForAdmin(); loadAllData(); loadPersistentLogsAndSettings();"><i class="fa-solid fa-rotate"></i> Sync System</button>
+            </div>
+          </div>
+
+          <!-- 8 Dedicated Admin Control Cards -->
+          <div class="admin-tiles-grid">
+            <div class="admin-tile active-tile" id="tile_usersSubPanel" onclick="openAdminSubPanel('usersSubPanel')">
+              <div class="admin-tile-left"><div class="admin-tile-icon"><i class="fa-solid fa-users-gear"></i></div><div><h4>User & Role Management</h4><p>Assign roles, suspend users, manage permissions</p></div></div>
+              <i class="fa-solid fa-chevron-right" style="color:#999;"></i>
+            </div>
+            <div class="admin-tile" id="tile_approvalsSubPanel" onclick="openAdminSubPanel('approvalsSubPanel')">
+              <div class="admin-tile-left"><div class="admin-tile-icon"><i class="fa-solid fa-clipboard-check"></i></div><div><h4>Request Approvals</h4><p>Pending queue, approve/reject, allocate units</p></div></div>
+              <i class="fa-solid fa-chevron-right" style="color:#999;"></i>
+            </div>
+            <div class="admin-tile" id="tile_inventorySubPanel" onclick="openAdminSubPanel('inventorySubPanel')">
+              <div class="admin-tile-left"><div class="admin-tile-icon"><i class="fa-solid fa-boxes-stacked"></i></div><div><h4>Inventory Control</h4><p>Stock adjustment, expiry & transaction history</p></div></div>
+              <i class="fa-solid fa-chevron-right" style="color:#999;"></i>
+            </div>
+            <div class="admin-tile" id="tile_compatSubPanel" onclick="openAdminSubPanel('compatSubPanel')">
+              <div class="admin-tile-left"><div class="admin-tile-icon"><i class="fa-solid fa-droplet"></i></div><div><h4>Blood Compatibility</h4><p>Compatible stock verification & availability</p></div></div>
+              <i class="fa-solid fa-chevron-right" style="color:#999;"></i>
+            </div>
+            <div class="admin-tile" id="tile_donorsSubPanel" onclick="openAdminSubPanel('donorsSubPanel')">
+              <div class="admin-tile-left"><div class="admin-tile-icon"><i class="fa-solid fa-user-check"></i></div><div><h4>Donor Management</h4><p>Verify, block, edit and delete donors</p></div></div>
+              <i class="fa-solid fa-chevron-right" style="color:#999;"></i>
+            </div>
+            <div class="admin-tile" id="tile_hospitalsSubPanel" onclick="openAdminSubPanel('hospitalsSubPanel')">
+              <div class="admin-tile-left"><div class="admin-tile-icon"><i class="fa-solid fa-hospital"></i></div><div><h4>Hospital & Analytics</h4><p>Hospital verification & hospital-wise records</p></div></div>
+              <i class="fa-solid fa-chevron-right" style="color:#999;"></i>
+            </div>
+            <div class="admin-tile" id="tile_alertsSubPanel" onclick="openAdminSubPanel('alertsSubPanel')">
+              <div class="admin-tile-left"><div class="admin-tile-icon"><i class="fa-solid fa-bell"></i></div><div><h4>Notifications & Alerts</h4><p>Emergency, low stock & expiry alerts</p></div></div>
+              <i class="fa-solid fa-chevron-right" style="color:#999;"></i>
+            </div>
+            <div class="admin-tile" onclick="document.getElementById('adminLogsSection').scrollIntoView({behavior:'smooth'})">
+              <div class="admin-tile-left"><div class="admin-tile-icon"><i class="fa-solid fa-file-waveform"></i></div><div><h4>System Logs & Audit</h4><p>Track all admin & user activities</p></div></div>
+              <i class="fa-solid fa-chevron-right" style="color:#999;"></i>
+            </div>
+          </div>
+
+          <!-- ===== DEDICATED WORKSPACE 1: USER & ROLE MANAGEMENT ===== -->
+          <div class="panel admin-subpanel" id="usersSubPanel">
+            <div class="panel-header-red"><span><i class="fa-solid fa-users-gear"></i> User & Role Management — Assign Roles, Suspend Users & Manage Permissions</span></div>
+            <div class="panel-body">
+              <div class="table-wrap">
+                <table>
+                  <thead><tr><th>#</th><th>Name</th><th>Email</th><th>Assign Role</th><th>Account Status</th><th>Admin Actions</th></tr></thead>
+                  <tbody id="adminUsersBody"><tr><td colspan="6" class="empty-row">Loading users...</td></tr></tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+
+          <!-- ===== DEDICATED WORKSPACE 2: REQUEST APPROVALS ===== -->
+          <div class="panel admin-subpanel hidden" id="approvalsSubPanel">
+            <div class="panel-header-red"><span><i class="fa-solid fa-clipboard-check"></i> Request Approvals — Pending Queue, Unit Allocation & Rejection Reason</span></div>
+            <div class="panel-body">
+              <div class="table-wrap">
+                <table>
+                  <thead class="crimson-head">
+                    <tr><th>Tracking ID</th><th>Receiver / Hospital</th><th>Group</th><th>Req Units</th><th>Allocate Units</th><th>Urgency</th><th>Status / Reason</th><th>Approve / Reject</th></tr>
+                  </thead>
+                  <tbody id="adminApprovalQueueBody"><tr><td colspan="8" class="empty-row">Loading requests...</td></tr></tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+
+          <!-- ===== DEDICATED WORKSPACE 3: INVENTORY CONTROL ===== -->
+          <div class="panel admin-subpanel hidden" id="inventorySubPanel">
+            <div class="panel-header-red"><span><i class="fa-solid fa-boxes-stacked"></i> Inventory Control — Stock Adjustment, Expiry Management & Transaction History</span></div>
+            <div class="panel-body">
+              <div class="form-row-2" style="margin-bottom:16px;">
+                <div style="background:#f8fafc; border:1px solid var(--border); border-radius:10px; padding:14px;">
+                  <h4 style="font-size:14px; margin-bottom:10px; color:var(--crimson-dark);"><i class="fa-solid fa-sliders"></i> Manual Stock Adjustment & Expiry</h4>
+                  <div class="form-row-2">
+                    <div class="form-group">
+                      <label>Blood Group</label>
+                      <div class="input-wrap"><select id="adjBloodGroup"><option value="A+">A+</option><option value="A-">A-</option><option value="B+">B+</option><option value="B-">B-</option><option value="O+">O+</option><option value="O-">O-</option><option value="AB+">AB+</option><option value="AB-">AB-</option></select></div>
+                    </div>
+                    <div class="form-group">
+                      <label>Action Type</label>
+                      <div class="input-wrap"><select id="adjActionType"><option value="ADD">Add Stock (+)</option><option value="REMOVE">Remove Stock (-)</option><option value="EXPIRE">Mark Units Expired</option></select></div>
+                    </div>
+                  </div>
+                  <div class="form-row-2">
+                    <div class="form-group">
+                      <label>Units</label>
+                      <div class="input-wrap"><input type="number" id="adjUnitsInput" min="1" max="100" value="1" /></div>
+                    </div>
+                    <div class="form-group">
+                      <label>Reason / Batch Note</label>
+                      <div class="input-wrap"><input type="text" id="adjNoteInput" placeholder="e.g. Camp donation / Expired batch" /></div>
+                    </div>
+                  </div>
+                  <button type="button" class="btn-crimson" style="width:100%; justify-content:center;" onclick="applyInventoryAdjustment()"><i class="fa-solid fa-check"></i> Apply Stock Update</button>
+                </div>
+
+                <div>
+                  <h4 style="font-size:14px; margin-bottom:10px; color:var(--text-dark);"><i class="fa-solid fa-clock-rotate-left" style="color:var(--crimson);"></i> Stock Transaction History</h4>
+                  <div class="table-wrap" style="max-height:220px; overflow-y:auto;">
+                    <table>
+                      <thead><tr><th>Time</th><th>Group</th><th>Action</th><th>Units</th><th>Note</th></tr></thead>
+                      <tbody id="stockTxnHistoryBody"><tr><td colspan="5" class="empty-row">No stock transactions yet.</td></tr></tbody>
+                    </table>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- ===== DEDICATED WORKSPACE 4: BLOOD COMPATIBILITY VERIFICATION ===== -->
+          <div class="panel admin-subpanel hidden" id="compatSubPanel">
+            <div class="panel-header-red"><span><i class="fa-solid fa-droplet"></i> Blood Compatibility — Compatible Stock Verification & Availability</span></div>
+            <div class="panel-body">
+              <div style="display:flex; gap:12px; align-items:end; flex-wrap:wrap; margin-bottom:16px;">
+                <div style="min-width:170px;">
+                  <label>Patient Blood Group</label>
+                  <div class="input-wrap"><select id="adminVerifyBg" onchange="runAdminCompatVerify()"><option value="A+">A+</option><option value="A-">A-</option><option value="B+">B+</option><option value="B-">B-</option><option value="O+">O+</option><option value="O-">O-</option><option value="AB+">AB+</option><option value="AB-">AB-</option></select></div>
+                </div>
+                <div style="min-width:150px;">
+                  <label>Units Needed</label>
+                  <div class="input-wrap"><input type="number" id="adminVerifyUnits" min="1" max="50" value="2" oninput="runAdminCompatVerify()" /></div>
+                </div>
+                <button type="button" class="btn-crimson" onclick="runAdminCompatVerify()"><i class="fa-solid fa-shield-check"></i> Verify Availability</button>
+              </div>
+              <div id="adminCompatVerifyResult" style="background:#f8fafc; border:1px solid var(--border); border-radius:10px; padding:14px;"></div>
+            </div>
+          </div>
+
+          <!-- ===== DEDICATED WORKSPACE 5: DONOR MANAGEMENT ===== -->
+          <div class="panel admin-subpanel hidden" id="donorsSubPanel">
+            <div class="panel-header-red"><span><i class="fa-solid fa-user-check"></i> Donor Management — Verify, Block, Edit & Delete Donors</span></div>
+            <div class="panel-body">
+              <div class="table-wrap">
+                <table>
+                  <thead class="crimson-head"><tr><th>#</th><th>Donor Name</th><th>Group</th><th>Phone / City</th><th>Verification & Status</th><th>Admin Controls</th></tr></thead>
+                  <tbody id="adminDonorControlBody"><tr><td colspan="6" class="empty-row">Loading donors...</td></tr></tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+
+          <!-- ===== DEDICATED WORKSPACE 6: HOSPITAL & ANALYTICS ===== -->
+          <div class="panel admin-subpanel hidden" id="hospitalsSubPanel">
+            <div class="panel-header-red"><span><i class="fa-solid fa-hospital"></i> Hospital & Analytics — Hospital Verification & Hospital-Wise Requests</span></div>
+            <div class="panel-body">
+              <div class="table-wrap">
+                <table>
+                  <thead class="crimson-head"><tr><th>#</th><th>Hospital / Center Name</th><th>Total Requests</th><th>Total Units Requested</th><th>Verification Status</th><th>Action</th></tr></thead>
+                  <tbody id="adminHospitalsBody"><tr><td colspan="6" class="empty-row">No hospital requests yet.</td></tr></tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+
+          <!-- ===== DEDICATED WORKSPACE 7: NOTIFICATIONS & ALERTS ===== -->
+          <div class="panel admin-subpanel hidden" id="alertsSubPanel">
+            <div class="panel-header-red"><span><i class="fa-solid fa-bell"></i> Notifications & Alerts — Emergency, Low Stock & Expiry Alerts</span></div>
+            <div class="panel-body" id="adminAlertsFeedBox" style="display:flex; flex-direction:column; gap:10px;"></div>
+          </div>
+
+          <!-- Role & Permission Matrix + Persistent System Settings Toggles -->
+          <div class="admin-mid-2">
+            <div class="panel">
+              <div class="panel-header-red"><span><i class="fa-solid fa-user-shield"></i> Role & Permission Management</span></div>
+              <div class="panel-body">
+                <div class="table-wrap">
+                  <table>
+                    <thead class="crimson-head"><tr><th>Role</th><th>Permissions</th><th>Active Users</th><th>Status</th></tr></thead>
+                    <tbody>
+                      <tr><td><strong><i class="fa-solid fa-crown" style="color:var(--crimson);"></i> Admin</strong></td><td>Full system access, role control, delete/edit records</td><td id="roleAdminCount">1</td><td><span class="status-pill green">Active</span></td></tr>
+                      <tr><td><strong><i class="fa-solid fa-user-nurse" style="color:var(--blue-txt);"></i> Staff</strong></td><td>Manage donors, inventory & blood requests</td><td id="roleStaffCount">0</td><td><span class="status-pill green">Active</span></td></tr>
+                      <tr><td><strong><i class="fa-solid fa-hospital" style="color:var(--amber-txt);"></i> Hospital</strong></td><td>Create blood requests & track live status</td><td>Connected</td><td><span class="status-pill green">Active</span></td></tr>
+                      <tr><td><strong><i class="fa-solid fa-user" style="color:#555;"></i> User</strong></td><td>Register donor/receiver & view availability</td><td id="roleUserCount">0</td><td><span class="status-pill green">Active</span></td></tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+
+            <div class="panel">
+              <div class="panel-header-red"><span><i class="fa-solid fa-gear"></i> System Settings (Saved in MongoDB)</span></div>
+              <div class="panel-body">
+                <div class="setting-row"><span><i class="fa-solid fa-envelope" style="color:var(--crimson); width:20px;"></i> Email Notifications</span><label class="switch"><input type="checkbox" id="setEmailNotif" checked onchange="saveSystemSettings()"><span class="slider"></span></label></div>
+                <div class="setting-row"><span><i class="fa-solid fa-triangle-exclamation" style="color:var(--amber-txt); width:20px;"></i> Low Stock Alerts (< 3 Units)</span><label class="switch"><input type="checkbox" id="setLowStock" checked onchange="saveSystemSettings()"><span class="slider"></span></label></div>
+                <div class="setting-row"><span><i class="fa-solid fa-truck-medical" style="color:var(--crimson); width:20px;"></i> Emergency Request Alerts</span><label class="switch"><input type="checkbox" id="setEmergency" checked onchange="saveSystemSettings()"><span class="slider"></span></label></div>
+                <div class="setting-row"><span><i class="fa-solid fa-rotate" style="color:var(--blue-txt); width:20px;"></i> Auto Update Stock on Request</span><label class="switch"><input type="checkbox" id="setAutoStock" checked onchange="saveSystemSettings()"><span class="slider"></span></label></div>
+                <div class="setting-row"><span><i class="fa-solid fa-user-plus" style="color:var(--green-txt); width:20px;"></i> Enable Public Registration</span><label class="switch"><input type="checkbox" id="setPublicReg" checked onchange="saveSystemSettings()"><span class="slider"></span></label></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Admin Quick Actions + Persistent Activity Logs -->
+          <div class="admin-bot-2" id="adminLogsSection">
+            <div class="panel">
+              <div class="panel-header-red"><span><i class="fa-solid fa-bolt"></i> Admin Quick Actions</span></div>
+              <div class="panel-body">
+                <div class="quick-act-grid">
+                  <div class="quick-act-btn" onclick="openAdminSubPanel('donorsSubPanel')"><i class="fa-solid fa-user-check"></i><span>Verify Donors</span></div>
+                  <div class="quick-act-btn" onclick="openAdminSubPanel('approvalsSubPanel')"><i class="fa-solid fa-check-double"></i><span>Approve Queue</span></div>
+                  <div class="quick-act-btn" onclick="openAdminSubPanel('inventorySubPanel')"><i class="fa-solid fa-sliders"></i><span>Adjust Stock</span></div>
+                  <div class="quick-act-btn" onclick="openAdminSubPanel('hospitalsSubPanel')"><i class="fa-solid fa-hospital"></i><span>Hospitals</span></div>
+                  <div class="quick-act-btn" onclick="goView('reportsView')"><i class="fa-solid fa-chart-pie"></i><span>Generate Report</span></div>
+                  <div class="quick-act-btn" onclick="downloadSystemBackup()"><i class="fa-solid fa-download"></i><span>Backup Data</span></div>
+                </div>
+              </div>
+            </div>
+
+            <div class="panel">
+              <div class="panel-header-red"><span><i class="fa-solid fa-clock-rotate-left"></i> Activity Logs (MongoDB Persistent)</span></div>
+              <div class="panel-body" id="adminActivityBox" style="display:flex; flex-direction:column; gap:8px; font-size:13px;"></div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- FOOTER -->
+      <footer class="premium-footer">
+        <div class="footer-inner">
+          <div>
+            <div class="footer-brand-head"><div class="footer-drop-icon"><i class="fa-solid fa-droplet"></i></div><h3>Blood Bank Information System</h3></div>
+            <p class="footer-desc">A community blood bank and donor network. Registered donors are listed publicly so people in need can find matching blood, by group and city, in seconds.</p>
+          </div>
+          <div>
+            <div class="footer-col-title">EXPLORE</div>
+            <ul class="footer-links">
+              <li><a onclick="goView('dashboardView')">Home</a></li>
+              <li><a onclick="goView('donorsView')">Find blood</a></li>
+              <li><a onclick="goView('receiversView')">Request blood</a></li>
+              <li><a onclick="goView('donorsView')">Become a donor</a></li>
+              <li><a onclick="goView('reportsView')">Reports & Analytics</a></li>
+            </ul>
+          </div>
+          <div>
+            <div class="footer-col-title">BLOOD GROUP QUICK REFERENCE</div>
+            <div class="footer-pills">
+              <button type="button" class="footer-bg-pill" onclick="quickFilterGroup('A+')">A+</button>
+              <button type="button" class="footer-bg-pill" onclick="quickFilterGroup('A-')">A-</button>
+              <button type="button" class="footer-bg-pill" onclick="quickFilterGroup('B+')">B+</button>
+              <button type="button" class="footer-bg-pill" onclick="quickFilterGroup('B-')">B-</button>
+              <button type="button" class="footer-bg-pill" onclick="quickFilterGroup('O+')">O+</button>
+              <button type="button" class="footer-bg-pill" onclick="quickFilterGroup('O-')">O-</button>
+              <button type="button" class="footer-bg-pill" onclick="quickFilterGroup('AB+')">AB+</button>
+              <button type="button" class="footer-bg-pill" onclick="quickFilterGroup('AB-')">AB-</button>
+            </div>
+            <p class="footer-note">O− is the universal donor; AB+ is the universal recipient. Always confirm compatibility with a medical professional.</p>
+          </div>
+        </div>
+        <div class="footer-bottom">Blood Bank Information System — community blood bank & donor network. Donor listings come from the live MongoDB registry; availability of blood products is confirmed by your blood bank staff.</div>
+      </footer>
+    </div>
+  </div>
+
+  <!-- MY PROFILE MODAL -->
+  <div id="profileModal" class="modal-backdrop hidden">
+    <div class="modal-box">
+      <div class="panel-header-red"><span><i class="fa-solid fa-id-card"></i> Account & Profile Details</span></div>
+      <div class="panel-body">
+        <div style="text-align:center; margin-bottom:16px;">
+          <div style="width:60px; height:60px; border-radius:50%; background:var(--crimson); color:#fff; display:inline-flex; align-items:center; justify-content:center; font-size:24px; margin-bottom:8px;">
+            <i class="fa-solid fa-user"></i>
+          </div>
+          <h3 id="modalUserName" style="font-size:18px;">User Name</h3>
+          <p id="modalUserEmail" style="font-size:13px; color:var(--text-muted);">email@domain.com</p>
+          <div style="margin-top:8px;" id="modalUserRoleBadge"></div>
+        </div>
+        <div style="background:#f8fafc; border:1px solid var(--border); border-radius:10px; padding:12px; font-size:13px; line-height:1.7;">
+          <div><strong>Database Status:</strong> Connected (MongoDB Persistent)</div>
+          <div><strong>Access Permissions:</strong> <span id="modalUserPerms">Standard Staff Access</span></div>
+        </div>
+        <div style="display:flex; gap:10px; margin-top:16px;">
+          <button type="button" class="btn-outline" style="flex:1; justify-content:center;" onclick="document.getElementById('profileModal').classList.add('hidden')">Close</button>
+          <button type="button" class="btn-crimson" style="flex:1; justify-content:center;" onclick="doLogout()"><i class="fa-solid fa-right-from-bracket"></i> Logout</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- EDIT DONOR MODAL -->
+  <div id="editModal" class="modal-backdrop hidden">
+    <div class="modal-box">
+      <div class="panel-header-red"><span><i class="fa-solid fa-pen-to-square"></i> Edit Donor Details</span></div>
+      <div class="panel-body">
+        <form id="editDonorForm">
+          <input type="hidden" id="editId" />
+          <div class="form-group"><label>Full Name <span class="req">*</span></label><div class="input-wrap"><i class="fa-solid fa-user"></i><input type="text" id="editName" required /></div></div>
+          <div class="form-row-2">
+            <div class="form-group"><label>Age <span class="req">*</span></label><div class="input-wrap"><i class="fa-solid fa-calendar"></i><input type="number" id="editAge" min="18" max="65" required /></div></div>
+            <div class="form-group"><label>Blood Group <span class="req">*</span></label><div class="input-wrap"><i class="fa-solid fa-droplet"></i><select id="editGroup" required><option value="A+">A+</option><option value="A-">A-</option><option value="B+">B+</option><option value="B-">B-</option><option value="O+">O+</option><option value="O-">O-</option><option value="AB+">AB+</option><option value="AB-">AB-</option></select></div></div>
+          </div>
+          <div class="form-group"><label>Phone Number <span class="req">*</span></label><div class="input-wrap"><i class="fa-solid fa-phone"></i><input type="tel" id="editPhone" required /></div></div>
+          <div class="form-group"><label>City <span class="req">*</span></label><div class="input-wrap"><i class="fa-solid fa-location-dot"></i><input type="text" id="editCity" required /></div></div>
+          <div style="display:flex; gap:10px; margin-top:16px;">
+            <button type="submit" class="btn-crimson" style="flex:1; justify-content:center;">Save Changes</button>
+            <button type="button" class="btn-outline" id="closeEditModal">Cancel</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    var ALL_GROUPS = ['A+', 'A-', 'B+', 'B-', 'O+', 'O-', 'AB+', 'AB-'];
+    var COMPAT_RULES = {
+      'O-': { receive: ['O-'], donate: ['O-','O+','A-','A+','B-','B+','AB-','AB+'] },
+      'O+': { receive: ['O-','O+'], donate: ['O+','A+','B+','AB+'] },
+      'A-': { receive: ['O-','A-'], donate: ['A-','A+','AB-','AB+'] },
+      'A+': { receive: ['O-','O+','A-','A+'], donate: ['A+','AB+'] },
+      'B-': { receive: ['O-','B-'], donate: ['B-','B+','AB-','AB+'] },
+      'B+': { receive: ['O-','O+','B-','B+'], donate: ['B+','AB+'] },
+      'AB-': { receive: ['O-','A-','B-','AB-'], donate: ['AB-','AB+'] },
+      'AB+': { receive: ['O-','O+','A-','A+','B-','B+','AB-','AB+'], donate: ['AB+'] }
+    };
+
+    var donorsList = [];
+    var receiversList = [];
+    var activityLogs = [];
+    var adminMeta = { stockAdj: {}, expiredUnits: {}, donorStatus: {}, hospitalVerified: {}, requestMeta: {}, stockTxns: [] };
+    var currentUser = null;
+    var currentUserRole = 'USER';
+
+    function isAdmin() { return currentUserRole === 'ADMIN'; }
+
+    function authHeaders() {
+      return {
+        'Content-Type': 'application/json',
+        'X-User-Id': (currentUser && currentUser.id) ? currentUser.id : ''
+      };
+    }
+
+    function esc(s) {
+      if (s === null || s === undefined) return '';
+      return String(s).replace(/&/g,'&').replace(/</g,'<').replace(/>/g,'>').replace(/"/g,'"');
+    }
+
+    function renderActivityHtml(logs) {
+      var html = (logs || []).map(function(a) {
+        return '<div style="display:flex; justify-content:space-between; padding:9px 12px; background:#f8f9fb; border-radius:8px; border-left:3px solid #a8151f;">' +
+          '<span>' + esc(a.msg) + '</span><span style="font-size:11.5px; color:#777;">' + esc(a.time || '') + '</span></div>';
+      }).join('');
+      var box1 = document.getElementById('activityFeed');
+      var box2 = document.getElementById('adminActivityBox');
+      if (box1) box1.innerHTML = html || '<div style="color:#888;">No activities yet.</div>';
+      if (box2) box2.innerHTML = html || '<div style="color:#888;">No activities yet.</div>';
+    }
+
+    function loadPersistentLogsAndSettings() {
+      fetch('/api/auth/logs').then(function(r) { return r.json(); }).then(function(logs) {
+        activityLogs = logs || [];
+        renderActivityHtml(activityLogs);
+      }).catch(function() {});
+
+      fetch('/api/auth/settings').then(function(r) { return r.json(); }).then(function(s) {
+        if (!s) return;
+        document.getElementById('setEmailNotif').checked = s.emailNotif !== false;
+        document.getElementById('setLowStock').checked = s.lowStockAlert !== false;
+        document.getElementById('setEmergency').checked = s.emergencyAlert !== false;
+        document.getElementById('setAutoStock').checked = s.autoStockUpdate !== false;
+        document.getElementById('setPublicReg').checked = s.publicRegistration !== false;
+      }).catch(function() {});
+    }
+
+    function saveAdminMeta(logMessage) {
+      fetch('/api/auth/admin-meta', {
+        method: 'PUT', headers: authHeaders(),
+        body: JSON.stringify(adminMeta)
+      }).then(function(r) {
+        if (r.ok) {
+          if (logMessage) addLog(logMessage);
+          refreshAllUI();
+        }
+      });
+    }
+
+    function saveSystemSettings() {
+      if (!isAdmin()) return;
+      var payload = {
+        emailNotif: document.getElementById('setEmailNotif').checked,
+        lowStockAlert: document.getElementById('setLowStock').checked,
+        emergencyAlert: document.getElementById('setEmergency').checked,
+        autoStockUpdate: document.getElementById('setAutoStock').checked,
+        publicRegistration: document.getElementById('setPublicReg').checked
+      };
+      fetch('/api/auth/settings', { method: 'PUT', headers: authHeaders(), body: JSON.stringify(payload) })
+        .then(function(r) { if (r.ok) addLog('Updated system settings in MongoDB'); });
+    }
+
+    function addLog(msg) {
+      fetch('/api/auth/logs', {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ msg: msg })
+      }).then(function() { loadPersistentLogsAndSettings(); }).catch(function() {});
+    }
+
+    /* ============ DEDICATED ADMIN PANEL SWITCHER ============ */
+    function openAdminSubPanel(panelId) {
+      document.querySelectorAll('.admin-subpanel').forEach(function(p) { p.classList.add('hidden'); });
+      document.querySelectorAll('.admin-tile').forEach(function(t) { t.classList.remove('active-tile'); });
+      var target = document.getElementById(panelId);
+      if (target) {
+        target.classList.remove('hidden');
+        target.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+      }
+      var tile = document.getElementById('tile_' + panelId);
+      if (tile) tile.classList.add('active-tile');
+      renderDedicatedAdminPanels();
+    }
+
+    /* ============ CLICKABLE PROFILE DROPDOWN & MODAL ============ */
+    document.getElementById('profileTriggerBtn').addEventListener('click', function(e) {
+      e.stopPropagation();
+      document.getElementById('profileDropdown').classList.toggle('hidden');
+    });
+    function closeProfileDropdown() { document.getElementById('profileDropdown').classList.add('hidden'); }
+    document.addEventListener('click', function(e) {
+      var dd = document.getElementById('profileDropdown');
+      if (dd && !dd.contains(e.target)) dd.classList.add('hidden');
+    });
+
+    function openProfileModal() {
+      closeProfileDropdown();
+      var u = currentUser || { name: 'Staff', email: 'staff@bloodbank.com', role: currentUserRole };
+      document.getElementById('modalUserName').textContent = u.name || 'Staff';
+      document.getElementById('modalUserEmail').textContent = u.email || 'staff@bloodbank.com';
+      document.getElementById('modalUserRoleBadge').innerHTML = isAdmin()
+        ? '<span class="status-pill red">ADMINISTRATOR (FULL CONTROL)</span>'
+        : '<span class="status-pill green">STANDARD USER</span>';
+      document.getElementById('modalUserPerms').textContent = isAdmin()
+        ? 'Full Admin Controls, Approve/Reject Requests, Stock Adjustment, Verify Donors & Hospitals'
+        : 'Register Donors, Submit Blood Requests & View Live Inventory';
+      document.getElementById('profileModal').classList.remove('hidden');
+    }
+
+    function stepUnits(delta) {
+      var inp = document.getElementById('rUnits');
+      var cur = parseInt(inp.value, 10) || 1;
+      inp.value = Math.min(20, Math.max(1, cur + delta));
+      updateReceiverCompatWidget();
+    }
+
+    /* ============ AUTH ============ */
+    document.getElementById('toRegister').onclick = function() {
+      document.getElementById('loginBox').classList.add('hidden');
+      document.getElementById('registerBox').classList.remove('hidden');
+    };
+    document.getElementById('toLogin').onclick = function() {
+      document.getElementById('registerBox').classList.add('hidden');
+      document.getElementById('loginBox').classList.remove('hidden');
+    };
+
+    document.getElementById('registerForm').addEventListener('submit', function(e) {
+      e.preventDefault();
+      var msg = document.getElementById('regMsg');
+      var payload = {
+        name: document.getElementById('regName').value.trim(),
+        email: document.getElementById('regEmail').value.trim(),
+        password: document.getElementById('regPassword').value
+      };
+      fetch('/api/auth/register', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) })
+        .then(function(r) { return r.json().then(function(d) { if (!r.ok) throw new Error(d.message || 'Failed'); return d; }); })
+        .then(function(user) { localStorage.setItem('bb_user', JSON.stringify(user)); enterDashboard(user); })
+        .catch(function(err) { msg.style.color = '#c62828'; msg.textContent = err.message; });
+    });
+
+    document.getElementById('loginForm').addEventListener('submit', function(e) {
+      e.preventDefault();
+      var msg = document.getElementById('loginMsg');
+      var payload = {
+        email: document.getElementById('loginEmail').value.trim(),
+        password: document.getElementById('loginPassword').value
+      };
+      fetch('/api/auth/login', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) })
+        .then(function(r) { return r.json().then(function(d) { if (!r.ok) throw new Error(d.message || 'Invalid credentials'); return d; }); })
+        .then(function(user) { localStorage.setItem('bb_user', JSON.stringify(user)); enterDashboard(user); })
+        .catch(function(err) { msg.style.color = '#c62828'; msg.textContent = err.message; });
+    });
+
+    function doLogout() {
+      closeProfileDropdown();
+      document.getElementById('profileModal').classList.add('hidden');
+      localStorage.removeItem('bb_user');
+      document.getElementById('appSection').classList.add('hidden');
+      document.getElementById('authSection').classList.remove('hidden');
+    }
+    document.getElementById('logoutBtn').onclick = doLogout;
+
+    function enterDashboard(user) {
+      currentUser = user;
+      document.getElementById('authSection').classList.add('hidden');
+      document.getElementById('appSection').classList.remove('hidden');
+
+      currentUserRole = (user && user.role) ? user.role : 'USER';
+      var uName = (user && user.name) ? user.name : 'Staff';
+      var uEmail = (user && user.email) ? user.email : 'staff@bloodbank.com';
+
+      document.getElementById('loggedUserName').textContent = uName;
+      document.getElementById('ddProfileName').textContent = uName;
+      document.getElementById('ddProfileEmail').textContent = uEmail;
+
+      var roleBadge = document.getElementById('loggedUserRole');
+      roleBadge.textContent = currentUserRole;
+      roleBadge.className = isAdmin() ? 'status-pill red' : 'status-pill green';
+
+      document.getElementById('adminNavBtn').classList.toggle('hidden', !isAdmin());
+      document.getElementById('ddAdminCtrlBtn').classList.toggle('hidden', !isAdmin());
+
+      var dateEl = document.getElementById('rDate');
+      if (dateEl && !dateEl.value) dateEl.value = new Date().toISOString().split('T')[0];
+
+      loadPersistentLogsAndSettings();
+      buildCompatibilityTables();
+      updateReceiverCompatWidget();
+      loadAllData();
+      if (isAdmin()) loadUsersForAdmin();
+    }
+
+    /* ============ NAVIGATION ============ */
+    function goView(viewId) {
+      document.querySelectorAll('.view-section').forEach(function(el) { el.classList.add('hidden'); });
+      document.getElementById(viewId).classList.remove('hidden');
+      document.querySelectorAll('.nav-item[data-view]').forEach(function(btn) {
+        btn.classList.toggle('active', btn.getAttribute('data-view') === viewId);
+      });
+      if (viewId === 'adminView' && isAdmin()) {
+        loadUsersForAdmin();
+        loadPersistentLogsAndSettings();
+        renderDedicatedAdminPanels();
+      }
+      if (viewId === 'reportsView') renderGraphicalReports();
+    }
+    document.querySelectorAll('.nav-item[data-view]').forEach(function(btn) {
+      btn.addEventListener('click', function() { goView(this.getAttribute('data-view')); });
+    });
+
+    function quickFilterGroup(bg) {
+      goView('donorsView');
+      document.getElementById('filterBgSelect').value = bg;
+      renderDonors();
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    document.getElementById('toggleSidebarBtn').onclick = function() {
+      var sb = document.getElementById('sidebar');
+      sb.style.display = (sb.style.display === 'none') ? 'flex' : 'none';
+    };
+
+    document.getElementById('topQuickSearch').addEventListener('input', function() {
+      document.getElementById('searchDonorInput').value = this.value;
+      goView('donorsView');
+      renderDonors();
+    });
+
+    /* ============ LOAD & COMPUTE STOCK (INCLUDING ADMIN ADJUSTMENTS & EXPIRY) ============ */
+    function loadAllData() {
+      Promise.all([
+        fetch('/api/donors').then(function(r) { return r.json(); }),
+        fetch('/api/receivers').then(function(r) { return r.json(); }),
+        fetch('/api/auth/admin-meta').then(function(r) { return r.json(); }).catch(function() { return {}; })
+      ]).then(function(res) {
+        donorsList = res[0] || [];
+        receiversList = res[1] || [];
+        var m = res[2] || {};
+        adminMeta = {
+          stockAdj: m.stockAdj || {},
+          expiredUnits: m.expiredUnits || {},
+          donorStatus: m.donorStatus || {},
+          hospitalVerified: m.hospitalVerified || {},
+          requestMeta: m.requestMeta || {},
+          stockTxns: m.stockTxns || []
+        };
+        refreshAllUI();
+      });
+    }
+
+    function computeStockMap() {
+      var map = {};
+      ALL_GROUPS.forEach(function(g) {
+        var adj = parseInt(adminMeta.stockAdj[g], 10) || 0;
+        var exp = parseInt(adminMeta.expiredUnits[g], 10) || 0;
+        map[g] = { donated: Math.max(0, adj), issued: exp, avail: 0 };
+      });
+      donorsList.forEach(function(d) {
+        var dState = adminMeta.donorStatus[d.id] || {};
+        if (!dState.blocked && map[d.bloodGroup]) {
+          map[d.bloodGroup].donated += 1;
+        }
+      });
+      receiversList.forEach(function(r) {
+        if (r.status !== 'Rejected' && map[r.bloodGroup]) {
+          var rMeta = adminMeta.requestMeta[r.id] || {};
+          var alloc = (rMeta.allocatedUnits !== undefined) ? parseInt(rMeta.allocatedUnits, 10) : (r.unitsRequired || 1);
+          map[r.bloodGroup].issued += alloc;
+        }
+      });
+      ALL_GROUPS.forEach(function(g) { map[g].avail = Math.max(0, map[g].donated - map[g].issued); });
+      return map;
+    }
+
+    function refreshAllUI() {
+      var stockMap = computeStockMap();
+      var totalDonors = donorsList.length;
+      var totalReceivers = receiversList.length;
+      var totalAvail = 0, totalIssued = 0, totalDonated = 0, outGroups = 0, lowOrOut = 0;
+
+      ALL_GROUPS.forEach(function(g) {
+        totalDonated += stockMap[g].donated;
+        totalAvail += stockMap[g].avail;
+        totalIssued += stockMap[g].issued;
+        if (stockMap[g].avail === 0) { outGroups++; lowOrOut++; }
+        else if (stockMap[g].avail <= 2) { lowOrOut++; }
+      });
+
+      document.getElementById('dashTotalDonors').textContent = totalDonors;
+      document.getElementById('dashTotalReceivers').textContent = totalReceivers;
+      document.getElementById('dashAvailUnits').textContent = totalAvail + ' Units';
+      document.getElementById('dashLowGroups').textContent = lowOrOut + ' Groups';
+
+      var citiesSet = {}, eligible = 0;
+      donorsList.forEach(function(d) {
+        if (d.city) citiesSet[d.city.toLowerCase().trim()] = true;
+        if (d.age >= 18 && d.age <= 60) eligible++;
+      });
+      document.getElementById('dKpiTotal').textContent = totalDonors;
+      document.getElementById('dKpiEligible').textContent = eligible;
+      document.getElementById('dKpiCities').textContent = Object.keys(citiesSet).length;
+      document.getElementById('dKpiUnits').textContent = totalDonated;
+
+      document.getElementById('rKpiTotal').textContent = totalReceivers;
+      document.getElementById('rKpiUnits').textContent = totalIssued;
+      document.getElementById('rKpiStock').textContent = totalAvail;
+      document.getElementById('rKpiActive').textContent = totalReceivers;
+
+      document.getElementById('invTotalStock').textContent = totalDonated + ' Units';
+      document.getElementById('invAvailStock').textContent = totalAvail + ' Units';
+      document.getElementById('invIssuedStock').textContent = totalIssued + ' Units';
+      document.getElementById('invOutCount').textContent = outGroups + ' Groups';
+
+      renderStockCards('dashBloodGrid', stockMap);
+      renderStockCards('invCardsGrid', stockMap);
+      renderInventoryTable(stockMap);
+      renderDonors();
+      renderReceivers();
+      updateReceiverCompatWidget();
+      renderGraphicalReports();
+      renderDedicatedAdminPanels();
+    }
+
+    function renderStockCards(containerId, stockMap) {
+      document.getElementById(containerId).innerHTML = ALL_GROUPS.map(function(g) {
+        var u = stockMap[g].avail;
+        var badge = u === 0
+          ? '<span class="status-pill red">Out of Stock</span>'
+          : (u <= 2 ? '<span class="status-pill amber">Low Stock</span>' : '<span class="status-pill green">Available</span>');
+        return '<div class="bg-stock-card"><div class="bg-top"><i class="fa-solid fa-droplet"></i> ' + g + '</div><div class="bg-units">' + u + ' Units</div>' + badge + '</div>';
+      }).join('');
+    }
+
+    function renderInventoryTable(stockMap) {
+      document.getElementById('invDetailsBody').innerHTML = ALL_GROUPS.map(function(g, idx) {
+        var s = stockMap[g];
+        var pill = s.avail === 0
+          ? '<span class="status-pill red">Out of Stock</span>'
+          : (s.avail <= 2 ? '<span class="status-pill amber">Low Stock</span>' : '<span class="status-pill green">Available</span>');
+        return '<tr><td>' + (idx + 1) + '</td><td><span class="bg-pill">' + g + '</span></td><td>' + s.donated + ' Units</td><td>' + s.issued + ' Units</td><td><strong>' + s.avail + ' Units</strong></td><td>' + pill + '</td></tr>';
+      }).join('');
+    }
+
+    /* ============ RENDER ALL DEDICATED ADMIN PANELS ============ */
+    function renderDedicatedAdminPanels() {
+      var appBody = document.getElementById('adminApprovalQueueBody');
+      if (appBody) {
+        if (receiversList.length === 0) {
+          appBody.innerHTML = '<tr><td colspan="8" class="empty-row">No blood requests in queue.</td></tr>';
+        } else {
+          appBody.innerHTML = receiversList.map(function(r, idx) {
+            var tid = r.trackingId || ('REQ-' + (100001 + idx));
+            var st = r.status || 'Pending';
+            var rMeta = adminMeta.requestMeta[r.id] || {};
+            var alloc = (rMeta.allocatedUnits !== undefined) ? rMeta.allocatedUnits : (r.unitsRequired || 1);
+            var reasonHtml = (st === 'Rejected' && rMeta.rejectionReason)
+              ? '<div style="font-size:11px; color:var(--crimson); margin-top:3px;">Reason: ' + esc(rMeta.rejectionReason) + '</div>'
+              : '';
+
+            return '<tr>' +
+              '<td><strong style="color:var(--crimson);">' + esc(tid) + '</strong></td>' +
+              '<td><strong>' + esc(r.name) + '</strong><br><span style="font-size:11.5px; color:#666;">' + esc(r.city) + '</span></td>' +
+              '<td><span class="bg-pill">' + esc(r.bloodGroup) + '</span></td>' +
+              '<td>' + (r.unitsRequired || 1) + ' u</td>' +
+              '<td><input type="number" id="alloc_' + r.id + '" min="0" max="20" value="' + alloc + '" style="width:58px; padding:4px 6px; border:1px solid #ccc; border-radius:6px; font-weight:700;" /></td>' +
+              '<td>' + getUrgencyBadge(r.urgencyLevel || 'Normal') + '</td>' +
+              '<td>' + getStatusBadge(st) + reasonHtml + '</td>' +
+              '<td><div class="tbl-actions">' +
+                '<button class="icon-action" style="background:var(--green-bg); color:var(--green-txt); width:auto; padding:0 8px; font-weight:700; font-size:11.5px;" onclick="adminApproveWithAlloc(\'' + r.id + '\')"><i class="fa-solid fa-check"></i> Approve</button>' +
+                '<button class="icon-action del" style="width:auto; padding:0 8px; font-weight:700; font-size:11.5px;" onclick="adminRejectWithReason(\'' + r.id + '\')"><i class="fa-solid fa-xmark"></i> Reject</button>' +
+              '</div></td>' +
+            '</tr>';
+          }).join('');
+        }
+      }
+
+      var txnBody = document.getElementById('stockTxnHistoryBody');
+      if (txnBody) {
+        var txns = adminMeta.stockTxns || [];
+        if (txns.length === 0) {
+          txnBody.innerHTML = '<tr><td colspan="5" class="empty-row">No stock transactions yet.</td></tr>';
+        } else {
+          txnBody.innerHTML = txns.slice(0, 15).map(function(t) {
+            var badge = t.action === 'ADD'
+              ? '<span class="status-pill green">+ Added</span>'
+              : (t.action === 'EXPIRE' ? '<span class="status-pill amber">Expired</span>' : '<span class="status-pill red">- Removed</span>');
+            return '<tr><td>' + esc(t.time) + '</td><td><span class="bg-pill">' + esc(t.group) + '</span></td><td>' + badge + '</td><td><strong>' + t.units + '</strong></td><td>' + esc(t.note || '-') + '</td></tr>';
+          }).join('');
+        }
+      }
+
+      runAdminCompatVerify();
+
+      var dBody = document.getElementById('adminDonorControlBody');
+      if (dBody) {
+        if (donorsList.length === 0) {
+          dBody.innerHTML = '<tr><td colspan="6" class="empty-row">No donors registered.</td></tr>';
+        } else {
+          dBody.innerHTML = donorsList.map(function(d, idx) {
+            var dState = adminMeta.donorStatus[d.id] || {};
+            var verBadge = dState.verified
+              ? '<span class="status-pill green"><i class="fa-solid fa-circle-check"></i> Verified</span>'
+              : '<span class="status-pill amber">Unverified</span>';
+            var blkBadge = dState.blocked
+              ? ' <span class="status-pill red"><i class="fa-solid fa-ban"></i> Blocked</span>'
+              : '';
+            return '<tr>' +
+              '<td>' + (idx + 1) + '</td>' +
+              '<td><strong>' + esc(d.name) + '</strong> (' + d.age + 'y)</td>' +
+              '<td><span class="bg-pill">' + esc(d.bloodGroup) + '</span></td>' +
+              '<td>' + esc(d.phone) + '<br><span style="font-size:11.5px; color:#666;">' + esc(d.city) + '</span></td>' +
+              '<td>' + verBadge + blkBadge + '</td>' +
+              '<td><div class="tbl-actions">' +
+                '<button class="btn-outline" style="padding:3px 8px; font-size:11.5px;" onclick="toggleDonorVerify(\'' + d.id + '\', \'' + esc(d.name) + '\')">' + (dState.verified ? 'Unverify' : 'Verify') + '</button>' +
+                '<button class="btn-outline" style="padding:3px 8px; font-size:11.5px; color:var(--crimson);" onclick="toggleDonorBlock(\'' + d.id + '\', \'' + esc(d.name) + '\')">' + (dState.blocked ? 'Unblock' : 'Block') + '</button>' +
+                '<button class="icon-action edit" title="Edit" onclick="openEditDonor(\'' + d.id + '\')"><i class="fa-solid fa-pen"></i></button>' +
+                '<button class="icon-action del" title="Delete" onclick="deleteDonor(\'' + d.id + '\', \'' + esc(d.name) + '\')"><i class="fa-solid fa-trash"></i></button>' +
+              '</div></td>' +
+            '</tr>';
+          }).join('');
+        }
+      }
+
+      var hBody = document.getElementById('adminHospitalsBody');
+      if (hBody) {
+        var hospMap = {};
+        receiversList.forEach(function(r) {
+          var hName = (r.city || 'General Hospital').trim();
+          if (!hospMap[hName]) hospMap[hName] = { reqs: 0, units: 0 };
+          hospMap[hName].reqs += 1;
+          hospMap[hName].units += (r.unitsRequired || 1);
+        });
+        var hKeys = Object.keys(hospMap);
+        if (hKeys.length === 0) {
+          hBody.innerHTML = '<tr><td colspan="6" class="empty-row">No hospital requests recorded yet.</td></tr>';
+        } else {
+          hBody.innerHTML = hKeys.map(function(h, idx) {
+            var isVer = Boolean(adminMeta.hospitalVerified[h]);
+            var badge = isVer
+              ? '<span class="status-pill green"><i class="fa-solid fa-shield-check"></i> Verified Hospital</span>'
+              : '<span class="status-pill amber">Pending Verification</span>';
+            return '<tr>' +
+              '<td>' + (idx + 1) + '</td>' +
+              '<td><strong>' + esc(h) + '</strong></td>' +
+              '<td>' + hospMap[h].reqs + ' Requests</td>' +
+              '<td><strong>' + hospMap[h].units + ' Units</strong></td>' +
+              '<td>' + badge + '</td>' +
+              '<td><button class="btn-outline" style="padding:4px 10px; font-size:12px;" onclick="toggleHospitalVerify(\'' + esc(h) + '\')">' + (isVer ? 'Revoke Verification' : 'Verify Hospital') + '</button></td>' +
+            '</tr>';
+          }).join('');
+        }
+      }
+
+      var alertBox = document.getElementById('adminAlertsFeedBox');
+      if (alertBox) {
+        var stockMap = computeStockMap();
+        var alertsHtml = [];
+        receiversList.forEach(function(r) {
+          if (r.urgencyLevel === 'Emergency' && r.status !== 'Fulfilled' && r.status !== 'Rejected') {
+            alertsHtml.push('<div class="urg-card-row" style="border-left:4px solid var(--crimson); margin-bottom:0;"><span><span class="status-pill red">EMERGENCY</span> <strong>' + esc(r.name) + '</strong> needs <strong>' + r.unitsRequired + 'u ' + esc(r.bloodGroup) + '</strong> at ' + esc(r.city) + '</span><button class="btn-crimson" style="padding:4px 10px; font-size:12px;" onclick="openAdminSubPanel(\'approvalsSubPanel\')">Review</button></div>');
+          }
+        });
+        ALL_GROUPS.forEach(function(g) {
+          if (stockMap[g].avail <= 2) {
+            alertsHtml.push('<div class="urg-card-row" style="border-left:4px solid var(--amber-txt); margin-bottom:0;"><span><span class="status-pill amber">LOW STOCK</span> Blood Group <strong>' + g + '</strong> has only <strong>' + stockMap[g].avail + ' unit(s)</strong> left.</span><button class="btn-outline" style="padding:4px 10px; font-size:12px;" onclick="openAdminSubPanel(\'inventorySubPanel\')">Add Stock</button></div>');
+          }
+          var exp = parseInt(adminMeta.expiredUnits[g], 10) || 0;
+          if (exp > 0) {
+            alertsHtml.push('<div class="urg-card-row" style="border-left:4px solid #555; margin-bottom:0;"><span><span class="status-pill red">EXPIRY ALERT</span> <strong>' + exp + ' unit(s)</strong> of <strong>' + g + '</strong> marked expired in inventory.</span></div>');
+          }
+        });
+        alertBox.innerHTML = alertsHtml.length ? alertsHtml.join('') : '<div style="color:var(--green-txt); font-weight:600;"><i class="fa-solid fa-circle-check"></i> All clear! No active emergency, low stock, or expiry alerts.</div>';
+      }
+    }
+
+    function adminApproveWithAlloc(reqId) {
+      var allocVal = parseInt(document.getElementById('alloc_' + reqId).value, 10) || 1;
+      adminMeta.requestMeta[reqId] = { allocatedUnits: allocVal, rejectionReason: '' };
+      saveAdminMeta('Allocated ' + allocVal + ' unit(s) & approved request');
+      updateReceiverStatus(reqId, 'Approved');
+    }
+
+    function adminRejectWithReason(reqId) {
+      var reason = prompt('Enter rejection reason (e.g. Insufficient compatible stock / Duplicate request):', 'Insufficient compatible stock');
+      if (reason === null) return;
+      adminMeta.requestMeta[reqId] = { allocatedUnits: 0, rejectionReason: reason };
+      saveAdminMeta('Rejected request: ' + reason);
+      updateReceiverStatus(reqId, 'Rejected');
+    }
+
+    function applyInventoryAdjustment() {
+      var bg = document.getElementById('adjBloodGroup').value;
+      var act = document.getElementById('adjActionType').value;
+      var units = parseInt(document.getElementById('adjUnitsInput').value, 10) || 1;
+      var note = document.getElementById('adjNoteInput').value.trim() || 'Manual Admin Adjustment';
+
+      if (act === 'ADD') {
+        adminMeta.stockAdj[bg] = (parseInt(adminMeta.stockAdj[bg], 10) || 0) + units;
+      } else if (act === 'REMOVE') {
+        adminMeta.stockAdj[bg] = Math.max(0, (parseInt(adminMeta.stockAdj[bg], 10) || 0) - units);
+      } else if (act === 'EXPIRE') {
+        adminMeta.expiredUnits[bg] = (parseInt(adminMeta.expiredUnits[bg], 10) || 0) + units;
+      }
+
+      adminMeta.stockTxns.unshift({
+        time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+        group: bg,
+        action: act,
+        units: units,
+        note: note
+      });
+      if (adminMeta.stockTxns.length > 30) adminMeta.stockTxns.pop();
+      document.getElementById('adjNoteInput').value = '';
+      saveAdminMeta('Inventory ' + act + ': ' + units + 'u of ' + bg + ' (' + note + ')');
+    }
+
+    function runAdminCompatVerify() {
+      var bgEl = document.getElementById('adminVerifyBg');
+      var uEl = document.getElementById('adminVerifyUnits');
+      var resBox = document.getElementById('adminCompatVerifyResult');
+      if (!bgEl || !uEl || !resBox) return;
+
+      var bg = bgEl.value;
+      var needed = parseInt(uEl.value, 10) || 1;
+      var stockMap = computeStockMap();
+      var compatGroups = (COMPAT_RULES[bg] && COMPAT_RULES[bg].receive) ? COMPAT_RULES[bg].receive : [];
+      var totalPool = 0;
+
+      var pills = compatGroups.map(function(g) {
+        var av = stockMap[g] ? stockMap[g].avail : 0;
+        totalPool += av;
+        return '<span class="compat-stock-item ' + (av > 0 ? 'has-stock' : 'no-stock') + '">' + g + ': <strong>' + av + ' Units</strong></span>';
+      }).join(' ');
+
+      var ok = totalPool >= needed;
+      resBox.innerHTML =
+        '<div style="margin-bottom:10px;">' +
+          (ok ? '<span class="status-pill green"><i class="fa-solid fa-circle-check"></i> VERIFIED: Sufficient Compatible Stock (' + totalPool + ' / ' + needed + ' Units)</span>'
+              : '<span class="status-pill red"><i class="fa-solid fa-triangle-exclamation"></i> SHORTAGE: Only ' + totalPool + ' of ' + needed + ' Units Available</span>') +
+        '</div>' +
+        '<div style="display:flex; flex-wrap:wrap; gap:8px;">' + pills + '</div>';
+    }
+
+    function toggleDonorVerify(id, name) {
+      var cur = adminMeta.donorStatus[id] || {};
+      cur.verified = !cur.verified;
+      adminMeta.donorStatus[id] = cur;
+      saveAdminMeta((cur.verified ? 'Verified donor: ' : 'Unverified donor: ') + name);
+    }
+
+    function toggleDonorBlock(id, name) {
+      var cur = adminMeta.donorStatus[id] || {};
+      cur.blocked = !cur.blocked;
+      adminMeta.donorStatus[id] = cur;
+      saveAdminMeta((cur.blocked ? 'Blocked donor: ' : 'Unblocked donor: ') + name);
+    }
+
+    function toggleHospitalVerify(hospName) {
+      var cur = Boolean(adminMeta.hospitalVerified[hospName]);
+      adminMeta.hospitalVerified[hospName] = !cur;
+      saveAdminMeta((!cur ? 'Verified hospital: ' : 'Revoked hospital verification: ') + hospName);
+    }
+
+    /* ============ GRAPHICAL REPORTS & ANALYTICS RENDERER ============ */
+    function renderGraphicalReports() {
+      var stockMap = computeStockMap();
+      var totalDonors = donorsList.length;
+      var totalReq = receiversList.length;
+
+      var counts = { Fulfilled: 0, Pending: 0, 'Partially Fulfilled': 0, Approved: 0, Rejected: 0 };
+      var urgCounts = { Emergency: 0, Urgent: 0, Normal: 0 };
+      var reqByGroup = {};
+      ALL_GROUPS.forEach(function(g) { reqByGroup[g] = 0; });
+
+      receiversList.forEach(function(r) {
+        var st = r.status || 'Pending';
+        if (counts[st] !== undefined) counts[st]++; else counts.Pending++;
+        var u = r.urgencyLevel || 'Normal';
+        if (urgCounts[u] !== undefined) urgCounts[u]++; else urgCounts.Normal++;
+        if (reqByGroup[r.bloodGroup] !== undefined) reqByGroup[r.bloodGroup] += (r.unitsRequired || 1);
+      });
+
+      var fulfilledCount = counts.Fulfilled + counts.Approved;
+      var rate = totalReq > 0 ? ((fulfilledCount / totalReq) * 100).toFixed(1) : '0.0';
+
+      document.getElementById('repTotalDonors').textContent = totalDonors;
+      document.getElementById('repTotalReq').textContent = totalReq;
+      document.getElementById('repFulfilled').textContent = fulfilledCount;
+      document.getElementById('repRate').textContent = rate + '%';
+
+      var maxAvail = 1;
+      ALL_GROUPS.forEach(function(g) { if (stockMap[g].avail > maxAvail) maxAvail = stockMap[g].avail; });
+      document.getElementById('repBarChart').innerHTML = ALL_GROUPS.map(function(g) {
+        var val = stockMap[g].avail;
+        var pctH = Math.max(6, Math.round((val / maxAvail) * 125));
+        return '<div class="bar-col">' +
+          '<div class="bar-val">' + val + '</div>' +
+          '<div class="bar-fill" style="height:' + pctH + 'px;"></div>' +
+          '<div class="bar-lbl">' + g + '</div>' +
+        '</div>';
+      }).join('');
+
+      var t = Math.max(1, totalReq);
+      var p1 = Math.round((fulfilledCount / t) * 100);
+      var p2 = Math.round((counts.Pending / t) * 100);
+      var p3 = Math.round((counts['Partially Fulfilled'] / t) * 100);
+      var donutBg = totalReq === 0
+        ? '#e5e7eb'
+        : 'conic-gradient(#2e7d32 0% ' + p1 + '%, #eab308 ' + p1 + '% ' + (p1 + p2) + '%, #f97316 ' + (p1 + p2) + '% ' + (p1 + p2 + p3) + '%, #c62828 ' + (p1 + p2 + p3) + '% 100%)';
+
+      document.getElementById('repDonutRing').style.background = donutBg;
+      document.getElementById('repDonutTotal').textContent = totalReq;
+      document.getElementById('repDonutLegend').innerHTML =
+        '<div class="legend-row"><span><i class="legend-dot" style="background:#2e7d32;"></i>Fulfilled / Approved</span><strong>' + fulfilledCount + '</strong></div>' +
+        '<div class="legend-row"><span><i class="legend-dot" style="background:#eab308;"></i>Pending</span><strong>' + counts.Pending + '</strong></div>' +
+        '<div class="legend-row"><span><i class="legend-dot" style="background:#f97316;"></i>Partially Fulfilled</span><strong>' + counts['Partially Fulfilled'] + '</strong></div>' +
+        '<div class="legend-row"><span><i class="legend-dot" style="background:#c62828;"></i>Rejected</span><strong>' + counts.Rejected + '</strong></div>';
+
+      function urgPct(n) { return totalReq > 0 ? ((n / totalReq) * 100).toFixed(1) : '0.0'; }
+      document.getElementById('repUrgencyBox').innerHTML =
+        '<div class="urg-card-row"><span class="status-pill red"><i class="fa-solid fa-triangle-exclamation"></i> Emergency</span><strong>' + urgCounts.Emergency + ' <span style="color:#777; font-weight:500;">(' + urgPct(urgCounts.Emergency) + '%)</span></strong></div>' +
+        '<div class="urg-card-row"><span class="status-pill amber"><i class="fa-solid fa-bolt"></i> Urgent</span><strong>' + urgCounts.Urgent + ' <span style="color:#777; font-weight:500;">(' + urgPct(urgCounts.Urgent) + '%)</span></strong></div>' +
+        '<div class="urg-card-row" style="margin-bottom:0;"><span class="status-pill green"><i class="fa-solid fa-circle-check"></i> Normal</span><strong>' + urgCounts.Normal + ' <span style="color:#777; font-weight:500;">(' + urgPct(urgCounts.Normal) + '%)</span></strong></div>';
+
+      var topReqBg = 'B+', topReqVal = 0, topStockBg = 'O+', topStockVal = -1, lowList = [], cities = {};
+      ALL_GROUPS.forEach(function(g) {
+        if (reqByGroup[g] > topReqVal) { topReqVal = reqByGroup[g]; topReqBg = g; }
+        if (stockMap[g].avail > topStockVal) { topStockVal = stockMap[g].avail; topStockBg = g; }
+        if (stockMap[g].avail <= 2) lowList.push(g);
+      });
+      donorsList.forEach(function(d) { if (d.city) cities[d.city.toLowerCase().trim()] = true; });
+      receiversList.forEach(function(r) { if (r.city) cities[r.city.toLowerCase().trim()] = true; });
+
+      document.getElementById('repInsightsBox').innerHTML =
+        '<div class="insight-row"><span><i class="fa-solid fa-droplet" style="color:var(--crimson); width:18px;"></i> Most Requested Group</span><strong>' + topReqBg + ' (' + topReqVal + ' Units)</strong></div>' +
+        '<div class="insight-row"><span><i class="fa-solid fa-box-open" style="color:var(--green-txt); width:18px;"></i> Highest Available Stock</span><strong>' + topStockBg + ' (' + Math.max(0, topStockVal) + ' Units)</strong></div>' +
+        '<div class="insight-row"><span><i class="fa-solid fa-triangle-exclamation" style="color:var(--amber-txt); width:18px;"></i> Low / Empty Groups</span><strong>' + (lowList.length ? lowList.slice(0,4).join(', ') : 'None') + '</strong></div>' +
+        '<div class="insight-row"><span><i class="fa-solid fa-hospital" style="color:var(--blue-txt); width:18px;"></i> Active Cities / Hospitals</span><strong>' + Object.keys(cities).length + ' Locations</strong></div>';
+
+      var recBody = document.getElementById('repRecentReqBody');
+      if (receiversList.length === 0) {
+        recBody.innerHTML = '<tr><td colspan="7" class="empty-row">No requests recorded yet.</td></tr>';
+      } else {
+        recBody.innerHTML = receiversList.slice(-5).reverse().map(function(r, idx) {
+          return '<tr>' +
+            '<td><strong style="color:var(--crimson);">' + esc(r.trackingId || ('REQ-' + (100001 + idx))) + '</strong></td>' +
+            '<td><strong>' + esc(r.name) + '</strong></td>' +
+            '<td><span class="bg-pill">' + esc(r.bloodGroup) + '</span></td>' +
+            '<td>' + (r.unitsRequired || 1) + '</td>' +
+            '<td>' + getUrgencyBadge(r.urgencyLevel || 'Normal') + '</td>' +
+            '<td>' + getStatusBadge(r.status || 'Pending') + '</td>' +
+            '<td>' + esc(r.requiredByDate || 'Immediate') + '</td>' +
+          '</tr>';
+        }).join('');
+      }
+    }
+
+    /* ============ DONORS CRUD ============ */
+    document.getElementById('donorForm').addEventListener('submit', function(e) {
+      e.preventDefault();
+      var msg = document.getElementById('donorMsg');
+      var payload = {
+        name: document.getElementById('dName').value.trim(),
+        age: parseInt(document.getElementById('dAge').value, 10),
+        bloodGroup: document.getElementById('dGroup').value,
+        phone: document.getElementById('dPhone').value.trim(),
+        city: document.getElementById('dCity').value.trim()
+      };
+      fetch('/api/donors', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) })
+        .then(function(r) {
+          if (!r.ok) throw new Error('Error');
+          msg.style.color = '#2e7d32'; msg.textContent = 'Donor registered in MongoDB!';
+          addLog('Registered donor: ' + payload.name + ' (' + payload.bloodGroup + ')');
+          document.getElementById('donorForm').reset();
+          loadAllData();
+          setTimeout(function() { msg.textContent = ''; }, 2500);
+        });
+    });
+
+    function renderDonors() {
+      var q = document.getElementById('searchDonorInput').value.toLowerCase().trim();
+      var bg = document.getElementById('filterBgSelect').value;
+      var city = document.getElementById('filterCityInput').value.toLowerCase().trim();
+
+      var filtered = donorsList.filter(function(d) {
+        var mQ = !q || (d.name && d.name.toLowerCase().indexOf(q) !== -1) || (d.phone && d.phone.toLowerCase().indexOf(q) !== -1);
+        var mBg = !bg || d.bloodGroup === bg;
+        var mCity = !city || (d.city && d.city.toLowerCase().indexOf(city) !== -1);
+        return mQ && mBg && mCity;
+      });
+
+      document.getElementById('donorShowingText').textContent = 'Showing ' + filtered.length + ' of ' + donorsList.length + ' donors';
+      var tbody = document.getElementById('donorTableBody');
+      if (filtered.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="8" class="empty-row">No matching donors found.</td></tr>';
+        return;
+      }
+
+      tbody.innerHTML = filtered.map(function(d, idx) {
+        var dState = adminMeta.donorStatus[d.id] || {};
+        var status = dState.blocked
+          ? '<span class="status-pill red">Blocked</span>'
+          : (dState.verified
+              ? '<span class="status-pill green"><i class="fa-solid fa-check"></i> Verified</span>'
+              : ((d.age >= 18 && d.age <= 60) ? '<span class="status-pill green">Eligible</span>' : '<span class="status-pill red">Senior</span>'));
+
+        var actionCell = isAdmin()
+          ? '<div class="tbl-actions">' +
+              '<button class="icon-action edit" title="Edit" onclick="openEditDonor(\'' + d.id + '\')"><i class="fa-solid fa-pen"></i></button>' +
+              '<button class="icon-action del" title="Delete" onclick="deleteDonor(\'' + d.id + '\', \'' + esc(d.name) + '\')"><i class="fa-solid fa-trash"></i></button>' +
+            '</div>'
+          : '<span style="font-size:11.5px; color:#888;">View Only</span>';
+        return '<tr><td>' + (idx + 1) + '</td><td><strong>' + esc(d.name) + '</strong></td><td>' + d.age + '</td><td><span class="bg-pill">' + esc(d.bloodGroup) + '</span></td><td>' + esc(d.phone) + '</td><td>' + esc(d.city) + '</td><td>' + status + '</td><td>' + actionCell + '</td></tr>';
+      }).join('');
+    }
+
+    document.getElementById('searchDonorInput').addEventListener('input', renderDonors);
+    document.getElementById('filterBgSelect').addEventListener('change', renderDonors);
+    document.getElementById('filterCityInput').addEventListener('input', renderDonors);
+    document.getElementById('clearDonorFilters').onclick = function() {
+      document.getElementById('searchDonorInput').value = '';
+      document.getElementById('filterBgSelect').value = '';
+      document.getElementById('filterCityInput').value = '';
+      renderDonors();
+    };
+
+    function openEditDonor(id) {
+      if (!isAdmin()) return;
+      var d = donorsList.find(function(x) { return x.id === id; });
+      if (!d) return;
+      document.getElementById('editId').value = d.id;
+      document.getElementById('editName').value = d.name;
+      document.getElementById('editAge').value = d.age;
+      document.getElementById('editGroup').value = d.bloodGroup;
+      document.getElementById('editPhone').value = d.phone;
+      document.getElementById('editCity').value = d.city;
+      document.getElementById('editModal').classList.remove('hidden');
+    }
+    document.getElementById('closeEditModal').onclick = function() { document.getElementById('editModal').classList.add('hidden'); };
+    document.getElementById('editDonorForm').addEventListener('submit', function(e) {
+      e.preventDefault();
+      var id = document.getElementById('editId').value;
+      var payload = {
+        name: document.getElementById('editName').value.trim(),
+        age: parseInt(document.getElementById('editAge').value, 10),
+        bloodGroup: document.getElementById('editGroup').value,
+        phone: document.getElementById('editPhone').value.trim(),
+        city: document.getElementById('editCity').value.trim()
+      };
+      fetch('/api/donors/' + id, { method: 'PUT', headers: authHeaders(), body: JSON.stringify(payload) })
+        .then(function(r) {
+          if (!r.ok) { alert('Admin access required'); return; }
+          document.getElementById('editModal').classList.add('hidden');
+          addLog('Updated donor: ' + payload.name);
+          loadAllData();
+        });
+    });
+
+    function deleteDonor(id, name) {
+      if (!isAdmin() || !confirm('Delete donor "' + name + '"?')) return;
+      fetch('/api/donors/' + id, { method: 'DELETE', headers: authHeaders() })
+        .then(function(r) {
+          if (!r.ok) { alert('Admin access required'); return; }
+          addLog('Deleted donor: ' + name);
+          loadAllData();
+        });
+    }
+
+    /* ============ RECEIVERS ============ */
+    document.getElementById('rGroup').addEventListener('change', updateReceiverCompatWidget);
+
+    function updateReceiverCompatWidget() {
+      var bg = document.getElementById('rGroup').value || 'B+';
+      var reqUnits = parseInt(document.getElementById('rUnits').value, 10) || 1;
+      document.getElementById('compatTargetBg').textContent = bg;
+      document.getElementById('stockCardBg').textContent = bg;
+
+      var rule = COMPAT_RULES[bg] || { receive: [], donate: [] };
+      var stockMap = computeStockMap();
+      var compatTotal = 0;
+
+      document.getElementById('compatStockFinderBox').innerHTML = rule.receive.map(function(g) {
+        var avail = stockMap[g] ? stockMap[g].avail : 0;
+        compatTotal += avail;
+        var cls = avail > 0 ? 'compat-stock-item has-stock' : 'compat-stock-item no-stock';
+        return '<span class="' + cls + '"><i class="fa-solid fa-droplet"></i> ' + g + ': <strong>' + avail + ' u</strong></span>';
+      }).join('');
+      document.getElementById('totalCompatPoolUnits').textContent = compatTotal + ' Units';
+      document.getElementById('canDonateBadges').innerHTML = rule.donate.map(function(x) { return '<span class="bg-pill">' + x + '</span>'; }).join('');
+
+      var exactAvail = stockMap[bg] ? stockMap[bg].avail : 0;
+      document.getElementById('selectedBgUnits').textContent = exactAvail + ' Units';
+      document.getElementById('selectedBgStatus').innerHTML = exactAvail > 0
+        ? '<span class="status-pill green">Direct Stock Ready</span>'
+        : '<span class="status-pill red">Direct Stock Empty</span>';
+
+      var pct = Math.min(100, Math.round((exactAvail / reqUnits) * 100));
+      var bar = document.getElementById('coverageProgressBar');
+      var pctTxt = document.getElementById('coveragePctText');
+      var hintTxt = document.getElementById('coverageHintText');
+      bar.style.width = pct + '%';
+      pctTxt.textContent = pct + '%';
+
+      if (pct >= 100) {
+        bar.style.background = '#2e7d32'; pctTxt.style.color = '#2e7d32';
+        hintTxt.textContent = '100% covered! All ' + reqUnits + ' unit(s) of ' + bg + ' are directly available.';
+      } else if (pct > 0) {
+        bar.style.background = '#ef6c00'; pctTxt.style.color = '#ef6c00';
+        hintTxt.textContent = 'Partially covered (' + exactAvail + '/' + reqUnits + ' units). ' + compatTotal + ' compatible units in pool.';
+      } else {
+        bar.style.background = '#c62828'; pctTxt.style.color = '#c62828';
+        hintTxt.textContent = '0% direct stock. ' + compatTotal + ' unit(s) available via compatible donor groups.';
+      }
+    }
+
+    document.getElementById('receiverForm').addEventListener('submit', function(e) {
+      e.preventDefault();
+      var msg = document.getElementById('receiverMsg');
+      var payload = {
+        name: document.getElementById('rName').value.trim(),
+        bloodGroup: document.getElementById('rGroup').value,
+        unitsRequired: parseInt(document.getElementById('rUnits').value, 10) || 1,
+        urgencyLevel: document.getElementById('rUrgency').value,
+        requiredByDate: document.getElementById('rDate').value,
+        phone: document.getElementById('rPhone').value.trim(),
+        city: document.getElementById('rCity').value.trim(),
+        status: 'Pending'
+      };
+      fetch('/api/receivers', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) })
+        .then(function(r) { return r.json(); })
+        .then(function(saved) {
+          msg.style.color = '#2e7d32';
+          msg.textContent = 'Request submitted! Tracking ID: ' + (saved.trackingId || 'Generated');
+          addLog('Blood request [' + (saved.trackingId || 'NEW') + ']: ' + payload.name + ' (' + payload.unitsRequired + 'u ' + payload.bloodGroup + ')');
+          document.getElementById('receiverForm').reset();
+          document.getElementById('rUnits').value = 1;
+          document.getElementById('rDate').value = new Date().toISOString().split('T')[0];
+          loadAllData();
+          setTimeout(function() { msg.textContent = ''; }, 4000);
+        });
+    });
+
+    function getUrgencyBadge(urg) {
+      if (urg === 'Emergency') return '<span class="status-pill red"><i class="fa-solid fa-triangle-exclamation"></i> Emergency</span>';
+      if (urg === 'Urgent') return '<span class="status-pill amber"><i class="fa-solid fa-bolt"></i> Urgent</span>';
+      return '<span class="status-pill blue">Normal</span>';
+    }
+
+    function getStatusBadge(st) {
+      if (st === 'Fulfilled') return '<span class="status-pill green">Fulfilled</span>';
+      if (st === 'Approved') return '<span class="status-pill blue">Approved</span>';
+      if (st === 'Partially Fulfilled') return '<span class="status-pill amber">Partially Fulfilled</span>';
+      if (st === 'Rejected') return '<span class="status-pill red">Rejected</span>';
+      return '<span class="status-pill amber">Pending</span>';
+    }
+
+    function renderReceivers() {
+      var tbody = document.getElementById('receiverTableBody');
+      if (receiversList.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="9" class="empty-row">No receiver requests yet.</td></tr>';
+        return;
+      }
+      var statuses = ['Pending', 'Approved', 'Rejected', 'Partially Fulfilled', 'Fulfilled'];
+      tbody.innerHTML = receiversList.map(function(r, idx) {
+        var tid = r.trackingId || ('REQ-' + (100001 + idx));
+        var curStatus = r.status || 'Pending';
+
+        var quickBtns = '';
+        if (curStatus === 'Pending') {
+          quickBtns = '<button class="icon-action" style="background:var(--green-bg); color:var(--green-txt); width:auto; padding:0 8px; font-weight:700; font-size:11.5px;" title="Accept Request" onclick="updateReceiverStatus(\'' + r.id + '\', \'Approved\')"><i class="fa-solid fa-check"></i> Accept</button>' +
+                      '<button class="icon-action del" style="width:auto; padding:0 8px; font-weight:700; font-size:11.5px;" title="Reject Request" onclick="updateReceiverStatus(\'' + r.id + '\', \'Rejected\')"><i class="fa-solid fa-xmark"></i> Reject</button>';
+        } else if (curStatus === 'Approved') {
+          quickBtns = '<button class="icon-action" style="background:var(--green-bg); color:var(--green-txt); width:auto; padding:0 8px; font-weight:700; font-size:11.5px;" title="Mark Fulfilled" onclick="updateReceiverStatus(\'' + r.id + '\', \'Fulfilled\')"><i class="fa-solid fa-check-double"></i> Fulfill</button>';
+        }
+
+        var statusCell = isAdmin()
+          ? '<div style="display:flex; align-items:center; gap:6px; flex-wrap:wrap;">' +
+              '<select class="status-select" onchange="updateReceiverStatus(\'' + r.id + '\', this.value)">' +
+                statuses.map(function(s) { return '<option value="' + s + '"' + (s === curStatus ? ' selected' : '') + '>' + s + '</option>'; }).join('') +
+              '</select>' +
+              quickBtns +
+            '</div>'
+          : getStatusBadge(curStatus);
+
+        var actionCell = isAdmin()
+          ? '<button class="icon-action del" title="Delete" onclick="deleteReceiver(\'' + r.id + '\', \'' + esc(r.name) + '\')"><i class="fa-solid fa-trash"></i></button>'
+          : '<span style="font-size:11.5px; color:#888;">Tracked</span>';
+
+        return '<tr>' +
+          '<td><strong style="color:var(--crimson);">' + esc(tid) + '</strong></td>' +
+          '<td><strong>' + esc(r.name) + '</strong></td>' +
+          '<td><span class="bg-pill">' + esc(r.bloodGroup) + '</span></td>' +
+          '<td><strong>' + (r.unitsRequired || 1) + ' Units</strong></td>' +
+          '<td>' + getUrgencyBadge(r.urgencyLevel || 'Normal') + '</td>' +
+          '<td>' + esc(r.requiredByDate || 'Immediate') + '</td>' +
+          '<td>' + esc(r.phone) + '<br><span style="font-size:11.5px; color:#666;">' + esc(r.city) + '</span></td>' +
+          '<td>' + statusCell + '</td>' +
+          '<td>' + actionCell + '</td>' +
+        '</tr>';
+      }).join('');
+    }
+
+    function updateReceiverStatus(id, newStatus) {
+      if (!isAdmin()) return;
+      fetch('/api/receivers/' + id + '/status', { method: 'PUT', headers: authHeaders(), body: JSON.stringify({ status: newStatus }) })
+        .then(function(r) {
+          if (!r.ok) { alert('Admin access required'); return; }
+          addLog('Updated request status to: ' + newStatus);
+          loadAllData();
+        });
+    }
+
+    function deleteReceiver(id, name) {
+      if (!isAdmin() || !confirm('Delete receiver "' + name + '"?')) return;
+      fetch('/api/receivers/' + id, { method: 'DELETE', headers: authHeaders() })
+        .then(function(r) {
+          if (!r.ok) { alert('Admin access required'); return; }
+          addLog('Deleted receiver: ' + name);
+          loadAllData();
+        });
+    }
+
+    /* ============ ADMIN USERS, ROLES, SUSPEND & BACKUP ============ */
+    function loadUsersForAdmin() {
+      fetch('/api/auth/users', { headers: authHeaders() })
+        .then(function(r) {
+          if (!r.ok) throw new Error('Forbidden');
+          return r.json();
+        })
+        .then(function(users) {
+          var tbody = document.getElementById('adminUsersBody');
+          var adminC = 0, staffC = 0, userC = 0;
+          (users || []).forEach(function(u) {
+            if (u.role === 'ADMIN') adminC++;
+            else if (u.role === 'STAFF') staffC++;
+            else userC++;
+          });
+          document.getElementById('roleAdminCount').textContent = adminC;
+          document.getElementById('roleStaffCount').textContent = staffC;
+          document.getElementById('roleUserCount').textContent = userC;
+
+          if (!users || users.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="6" class="empty-row">No users found.</td></tr>';
+            return;
+          }
+          tbody.innerHTML = users.map(function(u, idx) {
+            var role = u.role || 'USER';
+            var isLastAdmin = (role === 'ADMIN' && adminC <= 1);
+            var isSelf = (currentUser && currentUser.id === u.id);
+            var suspended = Boolean(u.suspended);
+
+            var statusPill = suspended
+              ? '<span class="status-pill red"><i class="fa-solid fa-ban"></i> Suspended</span>'
+              : '<span class="status-pill green">Active</span>';
+
+            var roleSelect = isLastAdmin
+              ? '<span class="status-pill amber"><i class="fa-solid fa-lock"></i> Primary Admin</span>'
+              : '<select class="status-select" onchange="changeUserRole(\'' + u.id + '\', this.value)">' +
+                  '<option value="USER"' + (role === 'USER' ? ' selected' : '') + '>USER</option>' +
+                  '<option value="STAFF"' + (role === 'STAFF' ? ' selected' : '') + '>STAFF</option>' +
+                  '<option value="ADMIN"' + (role === 'ADMIN' ? ' selected' : '') + '>ADMIN</option>' +
+                '</select>';
+
+            var actionHtml = isLastAdmin
+              ? '<span style="font-size:11.5px; color:#888;">Protected</span>'
+              : '<div class="tbl-actions">' +
+                  '<button class="btn-outline" style="padding:4px 10px; font-size:12px;" onclick="toggleUserSuspend(\'' + u.id + '\', ' + (!suspended) + ', \'' + esc(u.name) + '\')">' + (suspended ? 'Activate' : 'Suspend') + '</button>' +
+                  (isSelf ? '' : '<button class="icon-action del" title="Remove User" onclick="deleteStaffUser(\'' + u.id + '\', \'' + esc(u.name) + '\')"><i class="fa-solid fa-trash"></i></button>') +
+                '</div>';
+
+            return '<tr><td>' + (idx + 1) + '</td><td><strong>' + esc(u.name) + '</strong></td><td>' + esc(u.email) + '</td><td>' + roleSelect + '</td><td>' + statusPill + '</td><td>' + actionHtml + '</td></tr>';
+          }).join('');
+        })
+        .catch(function() {});
+    }
+
+    function changeUserRole(id, newRole) {
+      fetch('/api/auth/users/' + id + '/role', { method: 'PUT', headers: authHeaders(), body: JSON.stringify({ role: newRole }) })
+        .then(function(r) {
+          return r.json().then(function(d) {
+            if (!r.ok) { alert(d.message || 'Action blocked'); loadUsersForAdmin(); return; }
+            addLog('Assigned role ' + newRole + ' to user');
+            loadUsersForAdmin();
+          });
+        });
+    }
+
+    function toggleUserSuspend(id, suspendState, name) {
+      fetch('/api/auth/users/' + id + '/suspend', { method: 'PUT', headers: authHeaders(), body: JSON.stringify({ suspended: suspendState }) })
+        .then(function(r) {
+          return r.json().then(function(d) {
+            if (!r.ok) { alert(d.message || 'Action blocked'); return; }
+            addLog((suspendState ? 'Suspended user: ' : 'Activated user: ') + name);
+            loadUsersForAdmin();
+          });
+        });
+    }
+
+    function deleteStaffUser(id, name) {
+      if (!confirm('Remove staff user "' + name + '"?')) return;
+      fetch('/api/auth/users/' + id, { method: 'DELETE', headers: authHeaders() })
+        .then(function(r) {
+          return r.json().then(function(d) {
+            if (!r.ok) { alert(d.message || 'Action blocked'); return; }
+            addLog('Removed staff user: ' + name);
+            loadUsersForAdmin();
+          });
+        });
+    }
+
+    function downloadSystemBackup() {
+      var backup = { exportedAt: new Date().toISOString(), donors: donorsList, receivers: receiversList, adminMeta: adminMeta };
+      var blob = new Blob([JSON.stringify(backup, null, 2)], { type: 'application/json' });
+      var a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = 'bloodbank_full_backup.json';
+      a.click();
+      addLog('Downloaded full system JSON backup');
+    }
+
+    /* ============ COMPATIBILITY MATRIX & CSV EXPORTS ============ */
+    function buildCompatibilityTables() {
+      var order = ['O-', 'O+', 'A-', 'A+', 'B-', 'B+', 'AB-', 'AB+'];
+      var html = '<thead><tr><th>Donor ↓ \\ Rec →</th>' + order.map(function(g) { return '<th>' + g + '</th>'; }).join('') + '</tr></thead><tbody>';
+      order.forEach(function(donorBg) {
+        html += '<tr><td class="row-lbl">' + donorBg + '</td>';
+        order.forEach(function(recBg) {
+          html += (COMPAT_RULES[donorBg].donate.indexOf(recBg) !== -1) ? '<td class="chk-yes">✔</td>' : '<td class="chk-no">—</td>';
+        });
+        html += '</tr>';
+      });
+      html += '</tbody>';
+      document.getElementById('compatMatrixTable').innerHTML = html;
+      document.getElementById('compatFullTable').innerHTML = html;
+    }
+
+    function exportDonorsCSV() {
+      if (donorsList.length === 0) { alert('No donors to export!'); return; }
+      var lines = ['Name,Age,Blood Group,Phone,City'];
+      donorsList.forEach(function(d) {
+        lines.push('"' + (d.name||'') + '",' + d.age + ',"' + (d.bloodGroup||'') + '","' + (d.phone||'') + '","' + (d.city||'') + '"');
+      });
+      downloadCSVFile(lines.join('\n'), 'blood_bank_donors.csv');
+    }
+
+    function exportInventoryCSV() {
+      var stockMap = computeStockMap();
+      var lines = ['Blood Group,Donated Units,Issued Units,Available Units'];
+      ALL_GROUPS.forEach(function(g) {
+        var s = stockMap[g];
+        lines.push(g + ',' + s.donated + ',' + s.issued + ',' + s.avail);
+      });
+      downloadCSVFile(lines.join('\n'), 'blood_bank_inventory.csv');
+    }
+
+    function exportReceiversCSV() {
+      if (receiversList.length === 0) { alert('No requests to export!'); return; }
+      var lines = ['Tracking ID,Name,Blood Group,Units,Urgency,Required By,Phone,City,Status'];
+      receiversList.forEach(function(r, i) {
+        lines.push('"' + (r.trackingId || ('REQ-' + (100001+i))) + '","' + (r.name||'') + '","' + (r.bloodGroup||'') + '",' + (r.unitsRequired||1) + ',"' + (r.urgencyLevel||'Normal') + '","' + (r.requiredByDate||'') + '","' + (r.phone||'') + '","' + (r.city||'') + '","' + (r.status||'Pending') + '"');
+      });
+      downloadCSVFile(lines.join('\n'), 'blood_bank_requests.csv');
+    }
+
+    function downloadCSVFile(csvText, fileName) {
+      var blob = new Blob([csvText], { type: 'text/csv' });
+      var a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = fileName;
+      a.click();
+    }
+
+    var savedUser = localStorage.getItem('bb_user');
+    if (savedUser) { try { enterDashboard(JSON.parse(savedUser)); } catch (e) { enterDashboard(null); } }
+  </script>
+</body>
+</html>
