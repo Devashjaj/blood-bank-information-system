@@ -45,7 +45,10 @@ public class AuthController {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                     .body(Map.of("message", "Email is required!"));
         }
-        if (userRepository.findByEmail(user.getEmail()).isPresent()) {
+        String normalizedEmail = user.getEmail().trim().toLowerCase(Locale.ROOT);
+        user.setEmail(normalizedEmail);
+
+        if (userRepository.findByEmail(normalizedEmail).isPresent()) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                     .body(Map.of("message", "Email already registered!"));
         }
@@ -55,7 +58,7 @@ public class AuthController {
                     .body(Map.of("message", "Public registration is currently disabled by Admin."));
         }
 
-        if (userRepository.count() == 0 || "admin@bloodbank.com".equalsIgnoreCase(user.getEmail())) {
+        if (userRepository.count() == 0 || "admin@bloodbank.com".equalsIgnoreCase(normalizedEmail)) {
             user.setRole("ADMIN");
         } else {
             user.setRole("USER");
@@ -80,7 +83,7 @@ public class AuthController {
                     .body(Map.of("message", "Email and password are required!"));
         }
 
-        Optional<User> userOpt = userRepository.findByEmail(email);
+        Optional<User> userOpt = userRepository.findByEmail(email.trim().toLowerCase(Locale.ROOT));
         if (userOpt.isPresent()) {
             User u = userOpt.get();
             if (u.getPassword() != null && u.getPassword().equals(password)) {
@@ -114,7 +117,7 @@ public class AuthController {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).body(Map.of("message", "Admin access required"));
         }
         Document stateDoc = mongoTemplate.findById("user_states", Document.class, "admin_metadata");
-        ArrayList> out = new ArrayList<>();
+        List> out = new ArrayList<>();
         for (User u : userRepository.findAll()) {
             boolean suspended = stateDoc != null && Boolean.TRUE.equals(stateDoc.getBoolean("sus_" + u.getId()));
             Map<String, Object> item = new LinkedHashMap<>();
@@ -140,7 +143,9 @@ public class AuthController {
         if (targetOpt.isEmpty()) return ResponseEntity.notFound().build();
 
         User target = targetOpt.get();
-        String newRole = body.getOrDefault("role", "USER");
+        String newRole = (body != null && body.get("role") != null && !body.get("role").isBlank())
+                ? body.get("role").trim().toUpperCase(Locale.ROOT)
+                : "USER";
 
         if ("ADMIN".equalsIgnoreCase(target.getRole()) && !"ADMIN".equalsIgnoreCase(newRole) && countAdmins() <= 1) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
@@ -168,7 +173,7 @@ public class AuthController {
         }
         Document stateDoc = mongoTemplate.findById("user_states", Document.class, "admin_metadata");
         if (stateDoc == null) stateDoc = new Document("_id", "user_states");
-        boolean suspend = Boolean.TRUE.equals(body.get("suspended"));
+        boolean suspend = body != null && Boolean.TRUE.equals(body.get("suspended"));
         stateDoc.put("sus_" + id, suspend);
         mongoTemplate.save(stateDoc, "admin_metadata");
         return ResponseEntity.ok(Map.of("suspended", suspend));
@@ -222,7 +227,9 @@ public class AuthController {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).body(Map.of("message", "Admin access required"));
         }
         Document meta = new Document("_id", "global_admin_meta");
-        meta.putAll(payload);
+        if (payload != null) {
+            meta.putAll(payload);
+        }
         meta.put("_id", "global_admin_meta");
         mongoTemplate.save(meta, "admin_metadata");
         return ResponseEntity.ok(meta);
@@ -251,7 +258,9 @@ public class AuthController {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).body(Map.of("message", "Admin access required"));
         }
         Document doc = new Document("_id", "default");
-        doc.putAll(payload);
+        if (payload != null) {
+            doc.putAll(payload);
+        }
         doc.put("_id", "default");
         mongoTemplate.save(doc, "system_settings");
         return ResponseEntity.ok(doc);
@@ -266,8 +275,11 @@ public class AuthController {
     @PostMapping("/logs")
     public Document addLog(@RequestBody Map<String, String> body) {
         String timeStr = LocalTime.now().format(DateTimeFormatter.ofPattern("hh:mm a"));
+        String msg = (body != null && body.get("msg") != null && !body.get("msg").isBlank())
+                ? body.get("msg")
+                : "Activity recorded";
         Document doc = new Document()
-                .append("msg", body.getOrDefault("msg", "Activity recorded"))
+                .append("msg", msg)
                 .append("time", timeStr)
                 .append("createdAt", System.currentTimeMillis());
         return mongoTemplate.save(doc, "activity_logs");
