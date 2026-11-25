@@ -4,14 +4,28 @@ import com.bloodbank.backend.model.User;
 import com.bloodbank.backend.repository.UserRepository;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.Optional;
 import org.bson.Document;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping("/api/auth")
@@ -27,15 +41,19 @@ public class AuthController {
     }
 
     private boolean isCallerAdmin(String callerId) {
-        if (callerId == null || callerId.isBlank()) return false;
+        if (callerId == null || callerId.isBlank()) {
+            return false;
+        }
         return userRepository.findById(callerId)
-                .map(u -> "ADMIN".equalsIgnoreCase(u.getRole()) || "admin@bloodbank.com".equalsIgnoreCase(u.getEmail()))
+                .map(u -> "ADMIN".equalsIgnoreCase(u.getRole())
+                        || "admin@bloodbank.com".equalsIgnoreCase(u.getEmail()))
                 .orElse(false);
     }
 
     private long countAdmins() {
         return userRepository.findAll().stream()
-                .filter(u -> "ADMIN".equalsIgnoreCase(u.getRole()) || "admin@bloodbank.com".equalsIgnoreCase(u.getEmail()))
+                .filter(u -> "ADMIN".equalsIgnoreCase(u.getRole())
+                        || "admin@bloodbank.com".equalsIgnoreCase(u.getEmail()))
                 .count();
     }
 
@@ -52,8 +70,11 @@ public class AuthController {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                     .body(Map.of("message", "Email already registered!"));
         }
+
         Document settings = mongoTemplate.findById("default", Document.class, "system_settings");
-        if (settings != null && Boolean.FALSE.equals(settings.getBoolean("publicRegistration")) && userRepository.count() > 0) {
+        if (settings != null
+                && Boolean.FALSE.equals(settings.getBoolean("publicRegistration"))
+                && userRepository.count() > 0) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN)
                     .body(Map.of("message", "Public registration is currently disabled by Admin."));
         }
@@ -63,14 +84,14 @@ public class AuthController {
         } else {
             user.setRole("USER");
         }
-        User saved = userRepository.save(user);
 
-        Map<String, Object> res = new LinkedHashMap<>();
-        res.put("id", saved.getId() != null ? saved.getId() : "");
-        res.put("name", saved.getName() != null ? saved.getName() : "");
-        res.put("email", saved.getEmail() != null ? saved.getEmail() : "");
-        res.put("role", saved.getRole() != null ? saved.getRole() : "USER");
-        return ResponseEntity.ok(res);
+        User saved = userRepository.save(user);
+        return ResponseEntity.ok(Map.of(
+                "id", saved.getId() != null ? saved.getId() : "",
+                "name", saved.getName() != null ? saved.getName() : "",
+                "email", saved.getEmail() != null ? saved.getEmail() : "",
+                "role", saved.getRole() != null ? saved.getRole() : "USER"
+        ));
     }
 
     @PostMapping("/login")
@@ -78,35 +99,35 @@ public class AuthController {
         String email = creds != null ? creds.get("email") : null;
         String password = creds != null ? creds.get("password") : null;
 
-        if (email == null || password == null) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                    .body(Map.of("message", "Email and password are required!"));
+        if (email == null || email.isBlank() || password == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body(Map.of("message", "Invalid email or password!"));
         }
 
         Optional<User> userOpt = userRepository.findByEmail(email.trim().toLowerCase(Locale.ROOT));
-        if (userOpt.isPresent()) {
+        if (userOpt.isPresent() && password.equals(userOpt.get().getPassword())) {
             User u = userOpt.get();
-            if (u.getPassword() != null && u.getPassword().equals(password)) {
-                Document stateDoc = mongoTemplate.findById("user_states", Document.class, "admin_metadata");
-                if (stateDoc != null && Boolean.TRUE.equals(stateDoc.getBoolean("sus_" + u.getId()))) {
-                    return ResponseEntity.status(HttpStatus.FORBIDDEN)
-                            .body(Map.of("message", "Your account is suspended by Administrator."));
-                }
-                String role = (u.getRole() != null) ? u.getRole() : "USER";
-                if ("admin@bloodbank.com".equalsIgnoreCase(u.getEmail()) && !"ADMIN".equalsIgnoreCase(u.getRole())) {
-                    role = "ADMIN";
-                    u.setRole("ADMIN");
-                    userRepository.save(u);
-                }
-
-                Map<String, Object> res = new LinkedHashMap<>();
-                res.put("id", u.getId() != null ? u.getId() : "");
-                res.put("name", u.getName() != null ? u.getName() : "");
-                res.put("email", u.getEmail() != null ? u.getEmail() : "");
-                res.put("role", role);
-                return ResponseEntity.ok(res);
+            Document stateDoc = mongoTemplate.findById("user_states", Document.class, "admin_metadata");
+            if (stateDoc != null && Boolean.TRUE.equals(stateDoc.getBoolean("sus_" + u.getId()))) {
+                return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                        .body(Map.of("message", "Your account is suspended by Administrator."));
             }
+
+            String role = (u.getRole() != null && !u.getRole().isBlank()) ? u.getRole() : "USER";
+            if ("admin@bloodbank.com".equalsIgnoreCase(u.getEmail()) && !"ADMIN".equalsIgnoreCase(role)) {
+                role = "ADMIN";
+                u.setRole("ADMIN");
+                userRepository.save(u);
+            }
+
+            return ResponseEntity.ok(Map.of(
+                    "id", u.getId() != null ? u.getId() : "",
+                    "name", u.getName() != null ? u.getName() : "",
+                    "email", u.getEmail() != null ? u.getEmail() : "",
+                    "role", role
+            ));
         }
+
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
                 .body(Map.of("message", "Invalid email or password!"));
     }
@@ -117,18 +138,19 @@ public class AuthController {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).body(Map.of("message", "Admin access required"));
         }
         Document stateDoc = mongoTemplate.findById("user_states", Document.class, "admin_metadata");
-        List> out = new ArrayList<>();
-        for (User u : userRepository.findAll()) {
-            boolean suspended = stateDoc != null && Boolean.TRUE.equals(stateDoc.getBoolean("sus_" + u.getId()));
-            Map<String, Object> item = new LinkedHashMap<>();
-            item.put("id", u.getId());
-            item.put("name", u.getName() != null ? u.getName() : "");
-            item.put("email", u.getEmail() != null ? u.getEmail() : "");
-            item.put("role", u.getRole() != null ? u.getRole() : "USER");
-            item.put("suspended", suspended);
-            out.add(item);
-        }
-        return ResponseEntity.ok(out);
+        var usersList = userRepository.findAll().stream()
+                .map(u -> {
+                    boolean suspended = stateDoc != null && Boolean.TRUE.equals(stateDoc.getBoolean("sus_" + u.getId()));
+                    Map<String, Object> item = new LinkedHashMap<>();
+                    item.put("id", u.getId());
+                    item.put("name", u.getName() != null ? u.getName() : "");
+                    item.put("email", u.getEmail() != null ? u.getEmail() : "");
+                    item.put("role", u.getRole() != null ? u.getRole() : "USER");
+                    item.put("suspended", suspended);
+                    return item;
+                })
+                .toList();
+        return ResponseEntity.ok(usersList);
     }
 
     @PutMapping("/users/{id}/role")
@@ -140,7 +162,9 @@ public class AuthController {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).body(Map.of("message", "Admin access required"));
         }
         Optional<User> targetOpt = userRepository.findById(id);
-        if (targetOpt.isEmpty()) return ResponseEntity.notFound().build();
+        if (targetOpt.isEmpty()) {
+            return ResponseEntity.notFound().build();
+        }
 
         User target = targetOpt.get();
         String newRole = (body != null && body.get("role") != null && !body.get("role").isBlank())
@@ -166,13 +190,18 @@ public class AuthController {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).body(Map.of("message", "Admin access required"));
         }
         Optional<User> targetOpt = userRepository.findById(id);
-        if (targetOpt.isEmpty()) return ResponseEntity.notFound().build();
+        if (targetOpt.isEmpty()) {
+            return ResponseEntity.notFound().build();
+        }
         if ("ADMIN".equalsIgnoreCase(targetOpt.get().getRole()) && countAdmins() <= 1) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                     .body(Map.of("message", "Cannot suspend the last remaining Admin!"));
         }
+
         Document stateDoc = mongoTemplate.findById("user_states", Document.class, "admin_metadata");
-        if (stateDoc == null) stateDoc = new Document("_id", "user_states");
+        if (stateDoc == null) {
+            stateDoc = new Document("_id", "user_states");
+        }
         boolean suspend = body != null && Boolean.TRUE.equals(body.get("suspended"));
         stateDoc.put("sus_" + id, suspend);
         mongoTemplate.save(stateDoc, "admin_metadata");
@@ -187,7 +216,9 @@ public class AuthController {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).body(Map.of("message", "Admin access required"));
         }
         Optional<User> targetOpt = userRepository.findById(id);
-        if (targetOpt.isEmpty()) return ResponseEntity.notFound().build();
+        if (targetOpt.isEmpty()) {
+            return ResponseEntity.notFound().build();
+        }
 
         User target = targetOpt.get();
         if ("ADMIN".equalsIgnoreCase(target.getRole()) && countAdmins() <= 1) {
