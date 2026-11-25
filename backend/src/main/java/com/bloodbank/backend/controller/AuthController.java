@@ -59,53 +59,33 @@ public class AuthController {
 
     @PostMapping("/register")
     public ResponseEntity<?> register(@RequestBody User user) {
-        try {
-            if (user == null || user.getEmail() == null || user.getEmail().isBlank()) {
-                return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                        .body(Map.of("message", "Email is required!"));
-            }
-            String normalizedEmail = user.getEmail().trim().toLowerCase(Locale.ROOT);
-            user.setEmail(normalizedEmail);
-
-            if (user.getName() != null) {
-                user.setName(user.getName().trim());
-            }
-
-            if (userRepository.findByEmail(normalizedEmail).isPresent()) {
-                return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                        .body(Map.of("message", "Email already registered!"));
-            }
-
-            Document settings = mongoTemplate.findById("default", Document.class, "system_settings");
-            if (settings != null
-                    && Boolean.FALSE.equals(settings.getBoolean("publicRegistration"))
-                    && userRepository.count() > 0) {
-                return ResponseEntity.status(HttpStatus.FORBIDDEN)
-                        .body(Map.of("message", "Public registration is currently disabled by Admin."));
-            }
-
-            if (userRepository.count() == 0 || "admin@bloodbank.com".equalsIgnoreCase(normalizedEmail)) {
-                user.setRole("ADMIN");
-            } else {
-                user.setRole("USER");
-            }
-
-            User saved = userRepository.save(user);
-            return ResponseEntity.ok(Map.of(
-                    "id", saved.getId() != null ? saved.getId() : "",
-                    "name", saved.getName() != null ? saved.getName() : "",
-                    "email", saved.getEmail() != null ? saved.getEmail() : "",
-                    "role", saved.getRole() != null ? saved.getRole() : "USER"
-            ));
-        } catch (Exception ex) {
-            ex.printStackTrace();
-            String errMsg = ex.getMessage() != null ? ex.getMessage() : ex.getClass().getSimpleName();
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(Map.of(
-                            "message", "Registration failed: " + errMsg,
-                            "error", errMsg
-                    ));
+        if (user == null || user.getEmail() == null || user.getEmail().isBlank()) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(Map.of("message", "Email is required!"));
         }
+        if (userRepository.findByEmail(user.getEmail()).isPresent()) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(Map.of("message", "Email already registered!"));
+        }
+        Document settings = mongoTemplate.findById("default", Document.class, "system_settings");
+        if (settings != null && Boolean.FALSE.equals(settings.getBoolean("publicRegistration")) && userRepository.count() > 0) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                    .body(Map.of("message", "Public registration is currently disabled by Admin."));
+        }
+
+        if (userRepository.count() == 0 || "admin@bloodbank.com".equalsIgnoreCase(user.getEmail())) {
+            user.setRole("ADMIN");
+        } else {
+            user.setRole("USER");
+        }
+        User saved = userRepository.save(user);
+
+        Map<String, Object> res = new LinkedHashMap<>();
+        res.put("id", saved.getId() != null ? saved.getId() : "");
+        res.put("name", saved.getName() != null ? saved.getName() : "");
+        res.put("email", saved.getEmail() != null ? saved.getEmail() : "");
+        res.put("role", saved.getRole() != null ? saved.getRole() : "USER");
+        return ResponseEntity.ok(res);
     }
 
     @PostMapping("/login")
